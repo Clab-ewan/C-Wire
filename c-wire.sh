@@ -99,9 +99,22 @@ case "$STATION_TYPE" in
 esac
 }
 
+execute_program() {
+    echo "Exécution du programme C..."
+    CodeC/progO/program tmp/filtered_data.csv tmp/results.csv "$CONSUMER_TYPE"
+
+    if [[ $? -eq 0 ]]; then
+        echo "Résultats sauvegardés dans tmp/results.csv"
+    else
+        echo "Erreur lors de l'exécution du programme C"
+        exit 1
+    fi
+}
+
 # Appel des fonctions
 check_arguments "$@"
 check_file
 create_directories
 #executable_verification
 data_exploration
+#execute_program
