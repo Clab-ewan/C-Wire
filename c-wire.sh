@@ -58,8 +58,31 @@ executable_verification() {
     fi
 }
 
+# PowerPlant;hvb;hva;LV;Company;Individual;Capacity;Load
+# [ "$a" = "$b" ] compare character strings
+
+data_exploration() {
+case $a in
+    hvb) grep "$0;| cut -d ";" -f1,2,7 ;;
+    hva) ;;
+    lv) case $b in 
+            comp) ;;
+            indiv) ;;
+            all) ;;
+            *) ;;
+            esac
+            ;;
+    *) ;;
+esac
+}
+
+
 # Appel des fonctions
 check_arguments "$@"
 check_file
 create_directories
 executable_verification
+data_exploration
+
+
+
