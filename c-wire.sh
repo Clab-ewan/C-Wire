@@ -1,12 +1,28 @@
 #!/bin/bash
 
+# Affichage de l'aide
+for arg in "$@"; do
+    if [ "$arg" == "-h" ]; then
+        echo "Usage: $0 <fichier_csv> <type_station> <type_consommateur> [id_centrale]"
+        echo "Description: Ce script permet de traiter des données de consommation énergétique."
+        echo "Paramètres:"
+        echo "  <fichier_csv>         : Chemin vers le fichier CSV contenant les données."
+        echo "  <type_station>        : Type de station ('hva', 'hvb', 'lv')."
+        echo "  <type_consommateur>   : Type de consommateur ('comp', 'indiv', 'all')."
+        echo "  [id_centrale]         : (Optionnel) Identifiant de la centrale (doit être un nombre)."
+        echo "Options:"
+        echo "  -h                    : Affiche cette aide et quitte."
+        exit 0
+    fi
+done
+
 # Vérification des arguments passés
 check_arguments() {
     if [ $# -lt 3 ]; then # Si le nombre d'arguments est inférieur à 3
         echo "Usage: $0 <fichier_csv> <type_station> <type_consommateur> [id_centrale]"
         exit 1
     fi
-    if [ "$2" != "hva" ] && [ "$2" != "hvb" ] && ["$2" != "lv" ]; then
+    if [ "$2" != "hva" ] && [ "$2" != "hvb" ] && [ "$2" != "lv" ]; then
         echo "Erreur : Le type de station doit être 'hva' ou 'hvb' ou 'lv' ."
         exit 1
     fi
@@ -22,7 +38,6 @@ check_arguments() {
         echo "Erreur : L'identifiant de la centrale doit être un nombre."
         exit 1
     fi
-    
 }
 
 INPUT_FILE=$1
@@ -58,9 +73,6 @@ executable_verification() {
     fi
 }
 
-# PowerPlant;hvb;hva;LV;Company;Individual;Capacity;Load
-# [ "$a" = "$b" ] compare character strings
-
 data_exploration() {
 case $a in
     hvb) grep "$0;| cut -d ";" -f1,2,7 ;;
@@ -76,13 +88,9 @@ case $a in
 esac
 }
 
-
 # Appel des fonctions
 check_arguments "$@"
 check_file
 create_directories
 executable_verification
 data_exploration
-
-
-

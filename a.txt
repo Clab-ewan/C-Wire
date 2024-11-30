@@ -1,0 +1,14 @@
+data_exploration() {
+case $a in
+    hvb) grep "$0;| cut -d ";" -f1,2,7 ;;
+    hva) ;;
+    lv) case $b in 
+            comp) ;;
+            indiv) ;;
+            all) ;;
+            *) ;;
+            esac
+            ;;
+    *) ;;
+esac
+}
