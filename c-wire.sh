@@ -43,7 +43,7 @@ check_arguments() {
 INPUT_FILE=$1
 STATION_TYPE=$2
 CONSUMER_TYPE=$3
-CENTRAL_ID=${4:-"ALL"}
+CENTRAL_ID=${4:-"*"}
 
 # Vérification si le fichier CSV existe et n'est pas vide
 check_file() {
@@ -73,18 +73,28 @@ executable_verification() {
     fi
 }
 
+# PowerPlant;hvb;hva;LV;Company;Individual;Capacity;Load
+# [ "$a" = "$b" ] compare character strings
+
 data_exploration() {
-case $a in
-    hvb) grep "$0;| cut -d ";" -f1,2,7 ;;
-    hva) ;;
-    lv) case $b in 
-            comp) ;;
-            indiv) ;;
-            all) ;;
-            *) ;;
-            esac
+case "$STATION_TYPE" in
+    'hvb') grep "$CENTRAL_ID;*;-;-;-;*;-" "$INPUT_FILE" | grep -v "$CENTRAL_ID;-;-;-;-;*;-"| cut -d ";" -f7 
+    ;;
+    'hva') grep "$CENTRAL_ID;*;*;-;-;*;-" "$INPUT_FILE" | grep -v "$CENTRAL_ID;*;-;-;-;*;-" | cut -d ";" -f7 
+    ;;
+    'lv') case "$CONSUMER_TYPE" in 
+            'comp') 
             ;;
-    *) ;;
+            'indiv') 
+            ;;
+            'all') 
+            ;;
+            *) 
+            ;;
+        esac
+    ;;
+    *) 
+    ;;
 esac
 }
 
@@ -92,5 +102,5 @@ esac
 check_arguments "$@"
 check_file
 create_directories
-executable_verification
+#executable_verification
 data_exploration
