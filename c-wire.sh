@@ -40,7 +40,7 @@ check_arguments() {
     fi
 }
 
-#test 
+
 INPUT_FILE=$1
 STATION_TYPE=$2
 CONSUMER_TYPE=$3
