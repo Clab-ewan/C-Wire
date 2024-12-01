@@ -79,9 +79,9 @@ executable_verification() {
 
 data_exploration() {
 case "$STATION_TYPE" in
-    'hvb') grep "$CENTRAL_ID;*;-;-;-;*;-" "$INPUT_FILE" | grep -v "$CENTRAL_ID;-;-;-;-;*;-"| cut -d ";" -f7 
+    'hvb') grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f7 
     ;;
-    'hva') grep "$CENTRAL_ID;*;*;-;-;*;-" "$INPUT_FILE" | grep -v "$CENTRAL_ID;*;-;-;-;*;-" | cut -d ";" -f7 
+    'hva') grep -E "$CENTRAL_ID;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" #| cut -d ";" -f7 
     ;;
     'lv') case "$CONSUMER_TYPE" in 
             'comp') 
