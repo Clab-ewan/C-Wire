@@ -44,7 +44,7 @@ check_arguments() {
 INPUT_FILE=$1
 STATION_TYPE=$2
 CONSUMER_TYPE=$3
-CENTRAL_ID=${4:-"*"}
+CENTRAL_ID=${4:-"[^-]+"}
 
 # Vérification si le fichier CSV existe et n'est pas vide
 check_file() {
@@ -81,7 +81,7 @@ data_exploration() {
 case "$STATION_TYPE" in
     'hvb') grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f7 
     ;;
-    'hva') grep -E "$CENTRAL_ID;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" #| cut -d ";" -f7 
+    'hva') grep -E "$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f7 
     ;;
     'lv') case "$CONSUMER_TYPE" in 
             'comp') 
