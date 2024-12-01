@@ -81,7 +81,7 @@ data_exploration() {
 case "$STATION_TYPE" in
     'hvb') grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f7 
     ;;
-    'hva') grep -E "$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f7 
+    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f7 
     ;;
     'lv') case "$CONSUMER_TYPE" in 
             'comp') 
