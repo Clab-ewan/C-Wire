@@ -57,8 +57,9 @@ check_file() {
     fi
 }
 
-# Création des dossiers nécessaires pour le script
-create_directories() {
+# Création des dossiers nécessaires pour le script et suppresion
+check_directories() {
+    rm -rf "./tmp/"
     for directory in "tmp" "tests" "graphs"; do
         if [ ! -d "$directory" ]; then
             mkdir "$directory"
@@ -79,26 +80,30 @@ executable_verification() {
 
 data_exploration() {
 case "$STATION_TYPE" in
-    'hvb') grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f1,2,7 > "./tmp/hvb_prod.csv" &&
-            grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f1,2,5,8 > "./tmp/hvb_comp.csv"
+    'hvb') grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7 > "./tmp/hvb_prod.csv" &&
+            grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,5,8 > "./tmp/hvb_comp.csv"
     ;;
-    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f1,3,7 > "./tmp/hva_prod.csv" &&
-            grep -E "^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f1,3,5,8 > "./tmp/hva_comp.csv"
+    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7 > "./tmp/hva_prod.csv" &&
+            grep -E "^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f3,5,8 > "./tmp/hva_comp.csv"
     ;;
     'lv') case "$CONSUMER_TYPE" in 
-            'comp') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f1,4,7 > "./tmp/lv_prod.csv" &&
-                    grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f1,4,5,8 > "./tmp/lv_comp.csv"
+            'comp') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 > "./tmp/lv_prod.csv" &&
+                    grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,5,8 > "./tmp/lv_comp.csv"
             ;;
-            'indiv') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f1,4,7 > "./tmp/lv_prod.csv" &&
-                    grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f1,4,6,8 > "./tmp/lv_indiv.csv"
+            'indiv') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 > "./tmp/lv_prod.csv" &&
+                    grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,6,8 > "./tmp/lv_indiv.csv"
             ;;
-            'all') 
+            'all') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 > "./tmp/lv_prod.csv" &&
+            grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,5,8 >> "./tmp/lv_all.csv" &&
+            grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,6,8 >> "./tmp/lv_all.csv"
             ;;
-            *) 
+            *) echo "Erreur d'argument lv"
+                exit 1
             ;;
         esac
     ;;
-    *) 
+    *) echo "Erreur d'argument"
+        exit 1
     ;;
 esac
 }
@@ -115,21 +120,10 @@ execute_program() {
     fi
 }
 
-files_suppression() {
-    rm -f "./tmp/hvb_prod.csv"
-    rm -f "./tmp/hvb_comp.csv"
-    rm -f "./tmp/hva_prod.csv"
-    rm -f "./tmp/hva_comp.csv"
-    rm -f "./tmp/lv_prod.csv"
-    rm -f "./tmp/lv_comp.csv"
-    rm -f "./tmp/lv_indiv.csv"
-}
-
 # Appel des fonctions
 check_arguments "$@"
 check_file
-create_directories
+check_directories
 #executable_verification
 #execute_program
-files_suppression
 data_exploration
