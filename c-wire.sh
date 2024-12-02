@@ -79,9 +79,9 @@ executable_verification() {
 
 data_exploration() {
 case "$STATION_TYPE" in
-    'hvb') grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f7 
+    'hvb') grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7 >> "./tmp/hvb_prod.csv"
     ;;
-    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f7 
+    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7 >> "./tmp/hva_prod.csv"
     ;;
     'lv') case "$CONSUMER_TYPE" in 
             'comp') 
@@ -111,10 +111,18 @@ execute_program() {
     fi
 }
 
+files_suppression() {
+    rm -f "./tmp/hvb_prod.csv"
+    rm -f "./tmp/hva_prod.csv"
+    rm -f "./tmp/lv_prod.csv"
+}
+
+
 # Appel des fonctions
 check_arguments "$@"
 check_file
 create_directories
 #executable_verification
-data_exploration
 #execute_program
+files_suppression
+data_exploration
