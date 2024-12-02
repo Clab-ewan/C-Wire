@@ -79,14 +79,18 @@ executable_verification() {
 
 data_exploration() {
 case "$STATION_TYPE" in
-    'hvb') grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7 >> "./tmp/hvb_prod.csv"
+    'hvb') grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f1,2,7 > "./tmp/hvb_prod.csv" &&
+            grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f1,2,5,8 > "./tmp/hvb_comp.csv"
     ;;
-    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7 >> "./tmp/hva_prod.csv"
+    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f1,3,7 > "./tmp/hva_prod.csv" &&
+            grep -E "^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f1,3,5,8 > "./tmp/hva_comp.csv"
     ;;
     'lv') case "$CONSUMER_TYPE" in 
-            'comp') 
+            'comp') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f1,4,7 > "./tmp/lv_prod.csv" &&
+                    grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f1,4,5,8 > "./tmp/lv_comp.csv"
             ;;
-            'indiv') 
+            'indiv') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f1,4,7 > "./tmp/lv_prod.csv" &&
+                    grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f1,4,6,8 > "./tmp/lv_indiv.csv"
             ;;
             'all') 
             ;;
@@ -113,10 +117,13 @@ execute_program() {
 
 files_suppression() {
     rm -f "./tmp/hvb_prod.csv"
+    rm -f "./tmp/hvb_comp.csv"
     rm -f "./tmp/hva_prod.csv"
+    rm -f "./tmp/hva_comp.csv"
     rm -f "./tmp/lv_prod.csv"
+    rm -f "./tmp/lv_comp.csv"
+    rm -f "./tmp/lv_indiv.csv"
 }
-
 
 # Appel des fonctions
 check_arguments "$@"
