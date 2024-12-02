@@ -40,7 +40,6 @@ check_arguments() {
     fi
 }
 
-
 INPUT_FILE=$1
 STATION_TYPE=$2
 CONSUMER_TYPE=$3
@@ -80,7 +79,7 @@ executable_verification() {
 
 data_exploration() {
 case "$STATION_TYPE" in
-    'hvb') grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7 > "./tmp/hvb_prod.csv" &&
+    'hvb')  grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7 > "./tmp/hvb_prod.csv" &&
             grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,5,8 > "./tmp/hvb_comp.csv"
     ;;
     'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7 > "./tmp/hva_prod.csv" &&
