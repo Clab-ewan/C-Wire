@@ -1,14 +1,12 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -pedantic -std=c11
 TARGET = progO/program
-SRCS = $(wildcard *.c) # Tous les fichiers .c automatiquement dans le répertoire courant
+SRCS = $(wildcard *.c) # Inclut tous les fichiers .c
 
 all: $(TARGET)
-	@./$(TARGET)
-	@if [ ! -d "progO" ]; then mkdir -p progO; fi # Si le répertoire n'existe pas, le créer
 
 $(TARGET): $(SRCS)
-	@mkdir -p $(dir $(TARGET)) # Crée le répertoire si nécessaire
+	@mkdir -p $(dir $(TARGET))
 	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS)
 
 clean:
