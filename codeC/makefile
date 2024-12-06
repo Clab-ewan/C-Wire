@@ -1,14 +1,15 @@
-CC = gcc
-CFLAGS = -Wall -Wextra -pedantic -std=c11
-TARGET = progO/program
-SRCS = $(wildcard *.c) # Inclut tous les fichiers .c
 
-all: $(TARGET)
+all: exec
 
-$(TARGET): $(SRCS)
-	@mkdir -p $(dir $(TARGET))
-	$(CC) $(CFLAGS) -o $(TARGET) $(SRCS)
+avl_tree.o : avl_tree.c avl_tree.h
+		gcc -c avl_tree.c -o avl_tree.o
 
-clean:
-	rm -f $(TARGET)
-	if [ -d "progO" ]; then rmdir progO; fi
+main.o : avl_tree.h
+		gcc -c main.c -o main.o
+
+exec : main.o avl_tree.o
+	gcc main.o avl_tree.o -o exec
+
+# clean:
+# 	rm -f $(TARGET)
+# 	if [ -d "progO" ]; then rmdir progO; fi
