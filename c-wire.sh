@@ -16,26 +16,32 @@ for arg in "$@"; do
     fi
 done
 
+
 # Vérification des arguments passés
 check_arguments() {
     if [ $# -lt 3 ]; then # Si le nombre d'arguments est inférieur à 3
         echo "Usage: $0 <fichier_csv> <type_station> <type_consommateur> [id_centrale]"
+        echo "Time : 0.0sec"
         exit 1
     fi
     if [ "$2" != "hva" ] && [ "$2" != "hvb" ] && [ "$2" != "lv" ]; then
         echo "Erreur : Le type de station doit être 'hva' ou 'hvb' ou 'lv' ."
+        echo "Time : 0.0sec"
         exit 1
     fi
     if [ "$3" != "comp" ] && [ "$3" != "indiv" ] && [ "$3" != "all" ]; then
         echo "Erreur : Le type de consommateur doit être 'comp' ou 'indiv' ou 'all'."
+        echo "Time : 0.0sec"
         exit 1
     fi
     if { [ "$2" == "hvb" ] || [ "$2" == "hva" ]; } && { [ "$3" == "all" ] || [ "$3" == "indiv" ]; }; then
         echo "Erreur : Les options suivantes sont interdites : hvb all, hvb indiv, hva all, hva indiv."
+        echo "Time : 0.0sec"
         exit 1
     fi
     if ! [[ "$4" =~ ^[0-9]+$ ]] && [ -n "$4" ]; then
         echo "Erreur : L'identifiant de la centrale doit être un nombre."
+        echo "Time : 0.0sec"
         exit 1
     fi
 }
@@ -68,7 +74,7 @@ check_directories() {
 
 # Vérification de l'exécutable du programme C
 executable_verification() {
-    if [ ! -f CodeC/program ]; then
+    if [ ! -f ./CodeC/program ]; then
         echo "Compilation en cours..."
         make -C CodeC || { echo "Erreur de compilation"; exit 1; }
     fi
@@ -109,20 +115,24 @@ esac
 
 execute_program() {
     echo "Exécution du programme C..."
-    CodeC/progO/program tmp/filtered_data.csv tmp/results.csv "$CONSUMER_TYPE"
+    start=$SECONDS
+    ./CodeC/exec ./tmp/prod_data.csv ./tmp/cons_data.csv ./tmp/results.csv "$CONSUMER_TYPE" 
 
     if [[ $? -eq 0 ]]; then
         echo "Résultats sauvegardés dans tmp/results.csv"
+        echo "$duration sec"
     else
         echo "Erreur lors de l'exécution du programme C"
+        echo "$duration sec"
         exit 1
     fi
 }
+
 
 # Appel des fonctions
 check_arguments "$@"
 check_file
 check_directories
-executable_verification
+# executable_verification
 #execute_program
 data_exploration
