@@ -22,7 +22,7 @@ int max(int a, int b) {
 }
 
 // Fonction pour obtenir la hauteur d'un nœud
-int balance(AVLNode *node) {
+int print_balance(AVLNode *node) {
     if (node == NULL)
         return 0;
     return node->balance;
@@ -81,8 +81,29 @@ AVLNode* DoubleRotateRight(AVLNode *node) {
     return rightRotate(node);
 }
 
+AVLNode *balanceAVL(AVLNode *node){
+    if (node->balance >= 2){
+        if(node->right->balance >= 0){
+            return rightRotate(node);
+        }
+        else{
+            return DoubleRotateRight(node);
+        }
+    }
+    if (node->balance <= -2){
+        if(node->left->balance <= 0){
+            return leftRotate(node);
+        }
+        else{
+            return DoubleRotateLeft(node);
+        }
+    }
+    return node;
+}
+
+
 // Fonction pour insérer un nœud dans l'arbre AVL
-AVLNode* insert(AVLNode *node, int station_id, long load, long capacity) {
+AVLNode* insert(AVLNode *node, int station_id, long load, long capacity) {      // A finir //
     // 1. Effectuer l'insertion normale
     if (node == NULL)
         return newNode(station_id, load, capacity);
@@ -97,34 +118,12 @@ AVLNode* insert(AVLNode *node, int station_id, long load, long capacity) {
         return node;
     }
 
-    // 2. Mettre à jour la hauteur
+    // 2. Mettre à jour l'équilibre
     node->balance = 1 + max(balance(node->left), balance(node->right));
 
     // 3. Calculer le facteur d'équilibre
     int balance = getBalance(node);
-
-    // 4. Vérifier les cas de déséquilibre
-
-    // Gauche Gauche
-    if (balance > 1 && station_id < node->left->station_id)
-        return rightRotate(node);
-
-    // Droite Droite
-    if (balance < -1 && station_id > node->right->station_id)
-        return leftRotate(node);
-
-    // Gauche Droite
-    if (balance > 1 && station_id > node->left->station_id) {
-        node->left = leftRotate(node->left);
-        return rightRotate(node);
-    }
-
-    // Droite Gauche
-    if (balance < -1 && station_id < node->right->station_id) {
-        node->right = rightRotate(node->right);
-        return leftRotate(node);
-    }
-
+    node = balanceAVL(node);
     // Retourner le nœud inchangé
     return node;
 }
