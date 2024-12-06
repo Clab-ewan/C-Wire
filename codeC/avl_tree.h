@@ -15,7 +15,7 @@ typedef struct AVLNode {
     long load;
     struct AVLNode *left;
     struct AVLNode *right;
-    int height;
+    int balance;
 } AVLNode;
 
 AVLNode * newNode(int station_id, long load, long capacity); 

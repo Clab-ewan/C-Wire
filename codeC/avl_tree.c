@@ -12,7 +12,7 @@ AVLNode* newNode(int station_id, long load, long capacity) {
     node->capacity = capacity;
     node->left = NULL;
     node->right = NULL;
-    node->height = 1; // Le nouveau nœud est une feuille
+    node->balance = 1; // Le nouveau nœud est une feuille
     return node;
 }
 
@@ -22,17 +22,17 @@ int max(int a, int b) {
 }
 
 // Fonction pour obtenir la hauteur d'un nœud
-int height(AVLNode *node) {
+int balance(AVLNode *node) {
     if (node == NULL)
         return 0;
-    return node->height;
+    return node->balance;
 }
 
 // Fonction pour obtenir le facteur d'équilibre d'un nœud
 int getBalance(AVLNode *node) {
     if (node == NULL)
         return 0;
-    return height(node->left) - height(node->right);
+    return balance(node->left) - balance(node->right);
 }
 
 // Rotation à droite
@@ -45,8 +45,8 @@ AVLNode* rightRotate(AVLNode *y) {
     y->left = T2;
 
     // Mettre à jour les hauteurs
-    y->height = max(height(y->left), height(y->right)) + 1;
-    x->height = max(height(x->left), height(x->right)) + 1;
+    y->balance = max(balance(y->left), balance(y->right)) + 1;
+    x->balance = max(balance(x->left), balance(x->right)) + 1;
 
     // Retourner la nouvelle racine
     return x;
@@ -62,8 +62,8 @@ AVLNode* leftRotate(AVLNode *x) {
     x->right = T2;
 
     // Mettre à jour les hauteurs
-    x->height = max(height(x->left), height(x->right)) + 1;
-    y->height = max(height(y->left), height(y->right)) + 1;
+    x->balance = max(balance(x->left), balance(x->right)) + 1;
+    y->balance = max(balance(y->left), balance(y->right)) + 1;
 
     // Retourner la nouvelle racine
     return y;
@@ -98,7 +98,7 @@ AVLNode* insert(AVLNode *node, int station_id, long load, long capacity) {
     }
 
     // 2. Mettre à jour la hauteur
-    node->height = 1 + max(height(node->left), height(node->right));
+    node->balance = 1 + max(balance(node->left), balance(node->right));
 
     // 3. Calculer le facteur d'équilibre
     int balance = getBalance(node);
