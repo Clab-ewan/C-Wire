@@ -123,6 +123,6 @@ execute_program() {
 check_arguments "$@"
 check_file
 check_directories
-executable_verification
+#executable_verification
 #execute_program
 data_exploration
