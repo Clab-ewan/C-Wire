@@ -28,6 +28,7 @@ AVLNode * DoubleRotateRight(AVLNode *node);
 AVLNode * insert(AVLNode *node, int station_id, long load, long capacity);
 int print_balance(AVLNode *node);
 AVLNode *balanceAVL(AVLNode *node);
-
+void exportTreeToFile(FILE *file, AVLNode *node);// Fonction pour parcourir l'arbre AVL et exporter les résultats dans un fichier
+void saveTreeToFile(const char *filename, AVLNode *root);// Fonction pour sauvegarder l'arbre dans un fichier en commençant par ouvrir le fichier
 
 #endif // AVL_TREE_H

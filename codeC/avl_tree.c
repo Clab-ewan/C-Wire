@@ -127,3 +127,37 @@ AVLNode* insert(AVLNode *node, int station_id, long load, long capacity) {      
     // Retourner le nœud inchangé
     return node;
 }
+
+
+// Fonction récursive pour parcourir l'arbre en ordre croissant et écrire les données dans un fichier
+void exportTreeToFile(FILE *file, AVLNode *node) {
+    if (node == NULL)
+        return;
+
+    // Parcourir le sous-arbre gauche
+    exportTreeToFile(file, node->left);
+
+    // Écrire les données du nœud courant
+    fprintf(file, "%d:%ld:%ld\n", node->station_id, node->capacity, node->load);
+
+    // Parcourir le sous-arbre droit
+    exportTreeToFile(file, node->right);
+}
+
+// Fonction pour ouvrir un fichier et démarrer l'export
+void saveTreeToFile(const char *filename, AVLNode *root) {
+    FILE *file = fopen(filename, "w");
+    if (file == NULL) {
+        perror("Erreur lors de l'ouverture du fichier pour l'export");
+        return;
+    }
+
+    // Écrire l'en-tête du fichier
+    fprintf(file, "Station_ID:Capacity:Load\n");
+
+    // Appeler la fonction récursive pour exporter les données
+    exportTreeToFile(file, root);
+
+    // Fermer le fichier
+    fclose(file);
+}
