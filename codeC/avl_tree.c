@@ -12,7 +12,7 @@ AVLNode* newNode(int station_id, long load, long capacity) {
     node->capacity = capacity;
     node->left = NULL;
     node->right = NULL;
-    node->balance = 1; // Le nouveau nœud est une feuille
+    node->balance = 0; // Le nouveau nœud est une feuille
     return node;
 }
 
@@ -116,6 +116,8 @@ AVLNode* insert(AVLNode *node, int station_id, long load, long capacity) {      
         node->load += load;
         node->capacity += capacity;
         return node;
+
+        // il faut rajouter les fonctions d'équilibrage
     }
 
     // 2. Mettre à jour l'équilibre
