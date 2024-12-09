@@ -65,7 +65,7 @@ check_file() {
 # Création des dossiers nécessaires pour le script et suppresion
 check_directories() {
     rm -rf "./tmp/"
-    for directory in "tmp" "tests" "graphs"; do
+    for directory in "tmp" "tests" "graphs" "codeC/prog0"; do
         if [ ! -d "$directory" ]; then
             mkdir "$directory"
         fi
