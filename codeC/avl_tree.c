@@ -21,6 +21,11 @@ int max(int a, int b) {
     return (a > b) ? a : b;
 }
 
+// Fonction pour obtenir le minimum entre deux entiers
+int min(int a, int b) {
+    return (a > b) ? b : a;
+}
+
 // Fonction pour obtenir la hauteur d'un nœud
 int print_balance(AVLNode *node) {
     if (node == NULL)
@@ -46,8 +51,8 @@ AVLNode *leftRotate(AVLNode *t){
 	pivot->left = t;
 	eq_a = t->balance;
 	eq_p = pivot->balance;
-	t->balance = eq_a - fmax(eq_p, 0) - 1;
-	pivot->balance = fmin(fmin(eq_a - 2, eq_a + eq_p - 2), eq_p - 1);
+	t->balance = eq_a - max(eq_p, 0) - 1;
+	pivot->balance = min(min(eq_a - 2, eq_a + eq_p - 2), eq_p - 1);
 	t = pivot;
 	return t;
 }
@@ -63,8 +68,8 @@ AVLNode *rightRotate(AVLNode *t){
 	pivot->right = t;
 	eq_a = t->balance;
 	eq_p = pivot->balance;
-	t->balance = eq_a - fmin(eq_p, 0) + 1;
-	pivot->balance = fmax(fmax(eq_a + 2, eq_a + eq_p + 2), eq_p + 1);
+	t->balance = eq_a - min(eq_p, 0) + 1;
+	pivot->balance = max(max(eq_a + 2, eq_a + eq_p + 2), eq_p + 1);
 	t = pivot;
 	return t;
 }
@@ -110,11 +115,11 @@ AVLNode *insertAVL(AVLNode *root, int station_id, long capacity, long load, int 
 		return newNode(station_id, load, capacity);
 	}
 	else if(station_id < root->station_id){
-		root->left = newNode(station_id, load, capacity);
+		root->left = insertAVL(root->left, station_id, capacity, load, h);
 		*h = -(*h);
 	}
 	else if(station_id > root->station_id){
-		root->right = newNode(station_id, load, capacity);
+		root->right = insertAVL(root->right, station_id, capacity, load, h);
 	}
 	else{
 		*h = 0;
@@ -133,6 +138,12 @@ AVLNode *insertAVL(AVLNode *root, int station_id, long capacity, long load, int 
 	return root;
 }
 
+void *addAVLload(AVLNode *root, int station_id, long load){
+	if(root == NULL){
+		printf("Error, tree is empty \n");
+	}
+	if(root->station_id > station_id)
+}
 
 // Fonction récursive pour parcourir l'arbre en ordre croissant et écrire les données dans un fichier
 void exportAVLNodeToFile(FILE *file, AVLNode *node) {
