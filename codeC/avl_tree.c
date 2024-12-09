@@ -138,11 +138,21 @@ AVLNode *insertAVL(AVLNode *root, int station_id, long capacity, long load, int 
 	return root;
 }
 
-void *addAVLload(AVLNode *root, int station_id, long load){
+AVLNode *addAVLload(AVLNode *root, int station_id, long load){
 	if(root == NULL){
 		printf("Error, tree is empty \n");
+		return NULL;
 	}
-	if(root->station_id > station_id)
+	if(root->station_id > station_id){
+		root->left = addAVLload(root->left, station_id, load);
+	}
+	else if(root->station_id < station_id){
+		root->right = addAVLload(root->right, station_id, load);
+	}
+	else if(root->station_id == station_id){
+		root->load += load;
+	}
+	return root;
 }
 
 // Fonction récursive pour parcourir l'arbre en ordre croissant et écrire les données dans un fichier
