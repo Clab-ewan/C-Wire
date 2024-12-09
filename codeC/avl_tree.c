@@ -35,38 +35,38 @@ int getBalance(AVLNode *node) {
     return balance(node->left) - balance(node->right);
 }
 
-// Rotation à droite
-AVLNode* rightRotate(AVLNode *y) {
-    AVLNode *x = y->left;
-    AVLNode *T2 = x->right;
-
-    // Effectuer la rotation
-    x->right = y;
-    y->left = T2;
-
-    // Mettre à jour les hauteurs
-    y->balance = max(balance(y->left), balance(y->right)) + 1;
-    x->balance = max(balance(x->left), balance(x->right)) + 1;
-
-    // Retourner la nouvelle racine
-    return x;
+AVLNode *leftRotate(AVLNode *t){
+	if(t == NULL){
+	exit(3);
+	}
+	int eq_a;
+	int eq_p;
+	AVLNode *pivot =t->right;
+	t->right = pivot->left;
+	pivot->left = t;
+	eq_a = t->balance;
+	eq_p = pivot->balance;
+	t->balance = eq_a - fmax(eq_p, 0) - 1;
+	pivot->balance = fmin(fmin(eq_a - 2, eq_a + eq_p - 2), eq_p - 1);
+	t = pivot;
+	return t;
 }
 
-// Rotation à gauche
-AVLNode* leftRotate(AVLNode *x) {
-    AVLNode *y = x->right;
-    AVLNode *T2 = y->left;
-
-    // Effectuer la rotation
-    y->left = x;
-    x->right = T2;
-
-    // Mettre à jour les hauteurs
-    x->balance = max(balance(x->left), balance(x->right)) + 1;
-    y->balance = max(balance(y->left), balance(y->right)) + 1;
-
-    // Retourner la nouvelle racine
-    return y;
+AVLNode *rightRotate(AVLNode *t){
+	if(t == NULL){
+	exit(4);
+	}
+	int eq_a;
+	int eq_p;
+	AVLNode *pivot =t->left;
+	t->left = pivot->right;
+	pivot->right = t;
+	eq_a = t->balance;
+	eq_p = pivot->balance;
+	t->balance = eq_a - fmin(eq_p, 0) + 1;
+	pivot->balance = fmax(fmax(eq_a + 2, eq_a + eq_p + 2), eq_p + 1);
+	t = pivot;
+	return t;
 }
 
 // Double rotation à gauche
@@ -81,85 +81,81 @@ AVLNode* DoubleRotateRight(AVLNode *node) {
     return rightRotate(node);
 }
 
-AVLNode *balanceAVL(AVLNode *node){
-    if (node->balance >= 2){
-        if(node->right->balance >= 0){
-            return rightRotate(node);
-        }
-        else{
-            return DoubleRotateRight(node);
-        }
-    }
-    if (node->balance <= -2){
-        if(node->left->balance <= 0){
-            return leftRotate(node);
-        }
-        else{
-            return DoubleRotateLeft(node);
-        }
-    }
-    return node;
+AVLNode *BalanceAVL(AVLNode *t){
+	if(t == NULL){
+		printf("error\n");
+	}
+	if(t->balance >= 2){
+		if(t->right->balance >= 0){
+			return LeftRotation(t);
+		}
+		else{
+			return DLeftRotation(t);
+		}
+	}
+	else if(t->balance <= -2){
+		if(t->left->balance <=0){
+			return RightRotation(t);
+		}
+		else{
+			return DRightRotation(t);
+		}
+	}
+	return t;
 }
 
-
-// Fonction pour insérer un nœud dans l'arbre AVL
-AVLNode* insert(AVLNode *node, int station_id, long load, long capacity) {      // A finir //
-    // 1. Effectuer l'insertion normale
-    if (node == NULL)
-        return newNode(station_id, load, capacity);
-
-    if (station_id < node->station_id)
-        node->left = insert(node->left, station_id, load, capacity);
-    else if (station_id > node->station_id)
-        node->right = insert(node->right, station_id, load, capacity);
-    else { // Station déjà présente, cumuler les valeurs
-        node->load += load;
-        node->capacity += capacity;
-        return node;
-
-        // il faut rajouter les fonctions d'équilibrage
-    }
-
-    // 2. Mettre à jour l'équilibre
-    node->balance = 1 + max(balance(node->left), balance(node->right));
-
-    // 3. Calculer le facteur d'équilibre
-    int balance = getBalance(node);
-    node = balanceAVL(node);
-    // Retourner le nœud inchangé
-    return node;
+AVLNode *insertAVL(AVLNode *root, int station_id, long capacity, long load, int *h){
+	if(root == NULL){
+		*h = 1;
+		return newNode(station_id, load, capacity);
+	}
+	else if(station_id < root->station_id){
+		root->left = newNode(station_id, load, capacity);
+		*h = -(*h);
+	}
+	else if(station_id > root->station_id){
+		root->right = newNode(station_id, load, capacity);
+	}
+	else{
+		*h = 0;
+		return root;
+	}
+	if( *h != 0){
+		root->balance += *h;
+		root = BalanceAVL(root);
+		if(root->balance == 0){
+			*h = 0;
+		}
+		else{
+			*h = 1;
+		}
+	}
+	return root;
 }
 
 
 // Fonction récursive pour parcourir l'arbre en ordre croissant et écrire les données dans un fichier
-void exportTreeToFile(FILE *file, AVLNode *node) {
-    if (node == NULL)
-        return;
-
+void exportAVLNodeToFile(FILE *file, AVLNode *node) {
+    if (node == NULL)return;
     // Parcourir le sous-arbre gauche
-    exportTreeToFile(file, node->left);
-
+    exportAVLNodeToFile(file, node->left);
     // Écrire les données du nœud courant
     fprintf(file, "%d:%ld:%ld\n", node->station_id, node->capacity, node->load);
-
     // Parcourir le sous-arbre droit
-    exportTreeToFile(file, node->right);
+    exportAVLNodeToFile(file, node->right);
 }
 
 // Fonction pour ouvrir un fichier et démarrer l'export
-void saveTreeToFile(const char *filename, AVLNode *root) {
+void saveAVLNodeToFile(const char *filename, AVLNode *root) {
     FILE *file = fopen(filename, "w");
     if (file == NULL) {
         perror("Erreur lors de l'ouverture du fichier pour l'export");
         return;
     }
-
     // Écrire l'en-tête du fichier
     fprintf(file, "Station_ID:Capacity:Load\n");
-
     // Appeler la fonction récursive pour exporter les données
-    exportTreeToFile(file, root);
-
+    exportAVLNodeToFile(file, root);
     // Fermer le fichier
     fclose(file);
 }
