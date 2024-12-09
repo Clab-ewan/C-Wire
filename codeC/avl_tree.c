@@ -37,7 +37,7 @@ int print_balance(AVLNode *node) {
 int getBalance(AVLNode *node) {
     if (node == NULL)
         return 0;
-    return balance(node->left) - balance(node->right);
+    return balanceAVL(node->left) - balanceAVL(node->right);
 }
 
 AVLNode *leftRotate(AVLNode *t){
@@ -92,18 +92,18 @@ AVLNode *balanceAVL(AVLNode *t){
 	}
 	if(t->balance >= 2){
 		if(t->right->balance >= 0){
-			return LeftRotation(t);
+			return leftRotate(t);
 		}
 		else{
-			return DLeftRotation(t);
+			return DoubleRotateLeft(t);
 		}
 	}
 	else if(t->balance <= -2){
 		if(t->left->balance <=0){
-			return RightRotation(t);
+			return rightRotate(t);
 		}
 		else{
-			return DRightRotation(t);
+			return DoubleRotateRight(t);
 		}
 	}
 	return t;
@@ -128,7 +128,7 @@ AVLNode *insertAVL(AVLNode *root, int station_id, long capacity, long load, int 
 	}
 	if( *h != 0){
 		root->balance += *h;
-		root = BalanceAVL(root);
+		root = balanceAVL(root);
 		if(root->balance == 0){
 			*h = 0;
 		}

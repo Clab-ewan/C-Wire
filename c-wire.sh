@@ -65,7 +65,7 @@ check_file() {
 # Création des dossiers nécessaires pour le script et suppresion
 check_directories() {
     rm -rf "./tmp/"
-    for directory in "tmp" "tests" "graphs" "codeC/prog0"; do
+    for directory in "tmp" "tests" "graphs" "codeC/progO"; do
         if [ ! -d "$directory" ]; then
             mkdir "$directory"
         fi
@@ -117,7 +117,7 @@ esac
 
 execute_program(){
     ./CodeC/program < ./tmp/${STATION_TYPE}_prod.csv > ./tmp/${STATION_TYPE}_output.csv
-    cat ./tmp/${STATION_TYPE}_output.csv | ./CodeC/program
+    cat ./tmp/${STATION_TYPE}_output.csv | ./CodeC/exec
 }
 
 

@@ -21,8 +21,8 @@ typedef struct AVLNode {
 AVLNode * newNode(int station_id, long load, long capacity); 
 int max(int a, int b);
 int getBalance(AVLNode *node);
-AVLNode *rightRotate(AVLNode *y);
-AVLNode *leftRotate(AVLNode *x);
+AVLNode *rightRotate(AVLNode *t);
+AVLNode *leftRotate(AVLNode *t);
 AVLNode *DoubleRotateLeft(AVLNode *node);
 AVLNode *DoubleRotateRight(AVLNode *node);
 AVLNode *insertAVL(AVLNode *node, int station_id, long capacity, long load, int *h);
