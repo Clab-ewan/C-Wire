@@ -120,8 +120,6 @@ execute_program(){
     cat ./tmp/${STATION_TYPE}_output.csv | ./CodeC/exec
 }
 
-
-
 # Appel des fonctions
 check_arguments "$@"
 check_file
