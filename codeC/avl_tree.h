@@ -21,14 +21,14 @@ typedef struct AVLNode {
 AVLNode * newNode(int station_id, long load, long capacity); 
 int max(int a, int b);
 int getBalance(AVLNode *node);
-AVLNode * rightRotate(AVLNode *y);
-AVLNode * leftRotate(AVLNode *x);
-AVLNode * DoubleRotateLeft(AVLNode *node);
-AVLNode * DoubleRotateRight(AVLNode *node);
-AVLNode * insert(AVLNode *node, int station_id, long load, long capacity);
+AVLNode *rightRotate(AVLNode *y);
+AVLNode *leftRotate(AVLNode *x);
+AVLNode *DoubleRotateLeft(AVLNode *node);
+AVLNode *DoubleRotateRight(AVLNode *node);
+AVLNode *insertAVL(AVLNode *node, int station_id, long capacity, long load, int *h);
 int print_balance(AVLNode *node);
 AVLNode *balanceAVL(AVLNode *node);
-void exportTreeToFile(FILE *file, AVLNode *node);// Fonction pour parcourir l'arbre AVL et exporter les résultats dans un fichier
-void saveTreeToFile(const char *filename, AVLNode *root);// Fonction pour sauvegarder l'arbre dans un fichier en commençant par ouvrir le fichier
+void exportAVLNodeToFile(FILE *file, AVLNode *node);// Fonction pour parcourir l'arbre AVL et exporter les résultats dans un fichier
+void saveAVLNodeToFile(const char *filename, AVLNode *root);// Fonction pour sauvegarder l'arbre dans un fichier en commençant par ouvrir le fichier
 
 #endif // AVL_TREE_H

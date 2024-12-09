@@ -86,7 +86,7 @@ AVLNode* DoubleRotateRight(AVLNode *node) {
     return rightRotate(node);
 }
 
-AVLNode *BalanceAVL(AVLNode *t){
+AVLNode *balanceAVL(AVLNode *t){
 	if(t == NULL){
 		printf("error\n");
 	}
@@ -122,6 +122,7 @@ AVLNode *insertAVL(AVLNode *root, int station_id, long capacity, long load, int 
 		root->right = insertAVL(root->right, station_id, capacity, load, h);
 	}
 	else{
+		root->load += load;
 		*h = 0;
 		return root;
 	}
@@ -134,23 +135,6 @@ AVLNode *insertAVL(AVLNode *root, int station_id, long capacity, long load, int 
 		else{
 			*h = 1;
 		}
-	}
-	return root;
-}
-
-AVLNode *addAVLload(AVLNode *root, int station_id, long load){
-	if(root == NULL){
-		printf("Error, tree is empty \n");
-		return NULL;
-	}
-	if(root->station_id > station_id){
-		root->left = addAVLload(root->left, station_id, load);
-	}
-	else if(root->station_id < station_id){
-		root->right = addAVLload(root->right, station_id, load);
-	}
-	else if(root->station_id == station_id){
-		root->load += load;
 	}
 	return root;
 }

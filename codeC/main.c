@@ -2,13 +2,14 @@
 #include <stdlib.h>
 #include "avl_tree.h"
 
-int main() {
+
+int main(){
     AVLNode *root = NULL;
-    FILE *file = fopen("tmp/lv_all.csv", "r");
-    
+    int station_id = 0;
+    int *h = 0;
+    long load, capacity;
 
-
-    // N'oubliez pas de libérer la mémoire allouée pour l'arbre
-
-    return EXIT_SUCCESS;
+    while (scanf("%d;%ld;%ld", &station_id, &load, &capacity) != EOF) {
+        root = insertAVL(root, station_id, capacity, load, &h);
+    }
 }
