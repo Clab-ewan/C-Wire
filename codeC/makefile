@@ -10,6 +10,10 @@ main.o : avl_tree.h
 exec : main.o avl_tree.o
 	gcc main.o avl_tree.o -o exec
 
-# clean:
-# 	rm -f $(TARGET)
-# 	if [ -d "progO" ]; then rmdir progO; fi
+ajouter_dans_arbre.o : ajouter_dans_arbre.c 
+	gcc ajouter_dans_arbre.c -o ajouter_dans_arbre
+	progO/ajouter_dans_arbre
+
+
+clean:
+	rm -f exec main.o avl_tree.o

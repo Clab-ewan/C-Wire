@@ -72,7 +72,7 @@ check_directories() {
     done
 }
 
-# Vérification de l'exécutable du programme C
+# Vérification de l'exécutable du programme C non veifié a refaire
 executable_verification() {
     if [ ! -f ./CodeC/program ]; then
         echo "Compilation en cours..."
@@ -113,20 +113,13 @@ case "$STATION_TYPE" in
 esac
 }
 
-execute_program() {
-    echo "Exécution du programme C..."
-    start=$SECONDS
-    ./CodeC/exec ./tmp/prod_data.csv ./tmp/cons_data.csv ./tmp/results.csv "$CONSUMER_TYPE" 
 
-    if [[ $? -eq 0 ]]; then
-        echo "Résultats sauvegardés dans tmp/results.csv"
-        echo "$duration sec"
-    else
-        echo "Erreur lors de l'exécution du programme C"
-        echo "$duration sec"
-        exit 1
-    fi
+
+execute_program(){
+    ./CodeC/program < ./tmp/${STATION_TYPE}_prod.csv > ./tmp/${STATION_TYPE}_output.csv
+    cat ./tmp/${STATION_TYPE}_output.csv | ./CodeC/program
 }
+
 
 
 # Appel des fonctions
