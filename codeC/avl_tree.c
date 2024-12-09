@@ -1,7 +1,7 @@
 #include "avl_tree.h"
 
 // Fonction pour créer un nouveau nœud
-AVLNode* newNode(int station_id, long load, long capacity) {
+AVLNode* newNode(int station_id, long capacity, long load) {
     AVLNode* node = (AVLNode*) malloc(sizeof(AVLNode));
     if (node == NULL) {
         fprintf(stderr, "Erreur d'allocation mémoire\n");
