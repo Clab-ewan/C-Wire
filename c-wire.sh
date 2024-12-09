@@ -1,5 +1,34 @@
 #!/bin/bash
 
+###########################################################################################                                                                                         #
+#             ______      ____      ____  _____  _______     ________                     #
+#           .' ___  |    |_  _|    |_  _||_   _||_   __ \   |_   __  |                    #
+#          / .'   \_|______\ \  /\  / /    | |    | |__) |    | |_ \_|                    #
+#          | |      |______|\ \/  \/ /     | |    |  __ /     |  _| _                     #
+#          \ `.___.'\        \  /\  /     _| |_  _| |  \ \_  _| |__/ |                    #
+#           `.____ .'         \/  \/     |_____||____| |___||________|                    # 
+#                                                                                         #
+###########################################################################################
+#                                                                                         #
+# Ce script permet de filtrer les données d'un fichier CSV en fonction du type de station #
+# spécifié par l'utilisateur, d'exécuter le programme C avec les données filtrées et de   #
+# sauvegarder les résultats dans un fichier temporaire.                                   #
+#                                                                                         #
+# Usage: ./c-wire.sh <fichier_csv> <type_station> <type_consommateur> [id_centrale]       #
+#                                                                                         #
+# Arguments:                                                                              #
+#   - fichier_csv: fichier CSV contenant les données à traiter                            #
+#   - type_station: type de station à filtrer (HV-B Station, HV-A Station, LV Station)    #
+#   - type_consommateur: type de consommateur à traiter (Company, Individual)             #
+#   - id_centrale: identifiant de la centrale à traiter (optionnel)                       #
+#                                                                                         #
+# Exemple: ./c-wire.sh input/c-wire_v00.csv "hva" "comp"                                  #
+#                                                                                         #
+# cela représente le traitement des données du fichier data.csv pour les stations HV-B    #
+# consommant de l'électricité et connectées à la centrale 1.                              #    
+#                                                                                         #
+###########################################################################################
+
 # Affichage de l'aide
 for arg in "$@"; do
     if [ "$arg" == "-h" ]; then
