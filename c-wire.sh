@@ -18,8 +18,8 @@
 #                                                                                         #
 # Arguments:                                                                              #
 #   - fichier_csv: fichier CSV contenant les données à traiter                            #
-#   - type_station: type de station à filtrer (HV-B Station, HV-A Station, LV Station)    #
-#   - type_consommateur: type de consommateur à traiter (Company, Individual)             #
+#   - type_station: type de station à filtrer (hvb, hva, lv)                              #
+#   - type_consommateur: type de consommateur à traiter (comp, indiv)                     #
 #   - id_centrale: identifiant de la centrale à traiter (optionnel)                       #
 #                                                                                         #
 # Exemple: ./c-wire.sh input/c-wire_v00.csv "hva" "comp"                                  #
