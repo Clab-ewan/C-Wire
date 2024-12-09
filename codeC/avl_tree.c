@@ -26,20 +26,6 @@ int min(int a, int b) {
     return (a > b) ? b : a;
 }
 
-// Fonction pour obtenir la hauteur d'un nœud
-int print_balance(AVLNode *node) {
-    if (node == NULL)
-        return 0;
-    return node->balance;
-}
-
-// Fonction pour obtenir le facteur d'équilibre d'un nœud
-int getBalance(AVLNode *node) {
-    if (node == NULL)
-        return 0;
-    return balanceAVL(node->left) - balanceAVL(node->right);
-}
-
 AVLNode *leftRotate(AVLNode *t){
 	if(t == NULL){
 	exit(3);
@@ -137,6 +123,14 @@ AVLNode *insertAVL(AVLNode *root, int station_id, long capacity, long load, int 
 		}
 	}
 	return root;
+}
+
+void inorder(AVLNode *root){
+	if(root != NULL){
+		inorder(root->left);
+		printf("%d;%ld;%ld\n", root->station_id, root->capacity, root->load);
+		inorder(root->right);
+	}
 }
 
 // Fonction récursive pour parcourir l'arbre en ordre croissant et écrire les données dans un fichier

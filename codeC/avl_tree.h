@@ -20,15 +20,15 @@ typedef struct AVLNode {
 
 AVLNode * newNode(int station_id, long load, long capacity); 
 int max(int a, int b);
-int getBalance(AVLNode *node);
+int min(int a, int b);
+void inorder(AVLNode *t);
 AVLNode *rightRotate(AVLNode *t);
 AVLNode *leftRotate(AVLNode *t);
 AVLNode *DoubleRotateLeft(AVLNode *node);
 AVLNode *DoubleRotateRight(AVLNode *node);
 AVLNode *insertAVL(AVLNode *node, int station_id, long capacity, long load, int *h);
-int print_balance(AVLNode *node);
 AVLNode *balanceAVL(AVLNode *node);
 void exportAVLNodeToFile(FILE *file, AVLNode *node);// Fonction pour parcourir l'arbre AVL et exporter les résultats dans un fichier
 void saveAVLNodeToFile(const char *filename, AVLNode *root);// Fonction pour sauvegarder l'arbre dans un fichier en commençant par ouvrir le fichier
-
+void inorder(AVLNode *root);
 #endif // AVL_TREE_H
