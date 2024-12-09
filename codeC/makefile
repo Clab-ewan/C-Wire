@@ -1,19 +1,13 @@
-
 all: exec
 
-avl_tree.o : avl_tree.c avl_tree.h
-		gcc -c avl_tree.c -o avl_tree.o
+progO/avl_tree.o : avl_tree.c avl_tree.h
+	gcc -c avl_tree.c -o progO/avl_tree.o
 
-main.o : avl_tree.h
-		gcc -c main.c -o main.o
+progO/main.o : avl_tree.h
+	gcc -c main.c -o progO/program
 
-exec : main.o avl_tree.o
-	gcc main.o avl_tree.o -o exec
-
-ajouter_dans_arbre.o : ajouter_dans_arbre.c 
-	gcc ajouter_dans_arbre.c -o ajouter_dans_arbre
-	progO/ajouter_dans_arbre
-
+exec : progO/main.o progO/avl_tree.o
+	gcc progO/main.o progO/avl_tree.o -o exec
 
 clean:
-	rm -f exec main.o avl_tree.o
+	rm -f exec progO/*.o
