@@ -16,6 +16,32 @@ for arg in "$@"; do
     fi
 done
 
+# Vérification de l'existance des logiciels pour la partie graphique (Gnuplot).
+check_gnuplot(){
+logiciels=("gnuplot" "convert")
+
+for logiciel in "${logiciels[@]}"
+do
+    if command -v "$logiciel" &> /dev/null 
+    then
+        echo "Les logiciels nécessaires sont installés sur votre système."
+    else
+        echo "les logiciels nécessaires ne sont pas installés sur votre système. Installation en cours..."
+        # Installation.
+        sudo apt-get update
+        sudo apt-get install gnuplot imagemagick
+
+        # Vérification de l'installation.
+        if [ $? -eq 0 ]; then
+            echo "Les logiciels ont été installés avec succès."
+        else
+            echo "Erreur lors de l'installation des logiciels."
+        fi
+    fi
+done
+}
+
+
 
 # Vérification des arguments passés
 check_arguments() {
@@ -65,7 +91,7 @@ check_file() {
 # Création des dossiers nécessaires pour le script et suppresion
 check_directories() {
     rm -rf "./tmp/"
-    for directory in "tmp" "tests" "graphs" "codeC/progO"; do
+    for directory in "tmp" "tests" "graphs" "codeC/prog0"; do
         if [ ! -d "$directory" ]; then
             mkdir "$directory"
         fi
@@ -117,11 +143,12 @@ esac
 
 execute_program(){
     ./CodeC/program < ./tmp/${STATION_TYPE}_prod.csv > ./tmp/${STATION_TYPE}_output.csv
-    cat ./tmp/${STATION_TYPE}_output.csv | ./CodeC/exec
+    cat ./tmp/${STATION_TYPE}_output.csv | ./CodeC/program
 }
 
 # Appel des fonctions
 check_arguments "$@"
+check_gnuplot
 check_file
 check_directories
 # executable_verification
