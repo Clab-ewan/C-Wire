@@ -9,6 +9,5 @@ progO/main.o : avl_tree.h
 exec : progO/main.o progO/avl_tree.o
 	gcc progO/main.o progO/avl_tree.o -o exec
 
-
 clean:
 	rm -f exec progO/*.o
