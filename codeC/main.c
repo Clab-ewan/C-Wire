@@ -6,7 +6,7 @@
 int main(){
     AVLNode *root = NULL;
     int station_id = 0;
-    int *h = 0;
+    int h = 0;
     long load, capacity;
 
     while (scanf("%d;%ld;%ld", &station_id, &load, &capacity) != EOF) {
