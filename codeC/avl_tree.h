@@ -30,5 +30,4 @@ AVLNode *insertAVL(AVLNode *node, int station_id, long capacity, long load, int 
 AVLNode *balanceAVL(AVLNode *node);
 void exportAVLNodeToFile(FILE *file, AVLNode *node);// Fonction pour parcourir l'arbre AVL et exporter les résultats dans un fichier
 void saveAVLNodeToFile(const char *filename, AVLNode *root);// Fonction pour sauvegarder l'arbre dans un fichier en commençant par ouvrir le fichier
-void inorder(AVLNode *root);
 #endif // AVL_TREE_H
