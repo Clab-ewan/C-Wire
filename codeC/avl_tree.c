@@ -128,7 +128,7 @@ AVLNode *insertAVL(AVLNode *node, int station_id, long capacity, long load, int 
 void inorder(AVLNode *node){
 	if(node != NULL){
 		inorder(node->left);
-		printf("%d;%ld;%ld;%d\n", node->station_id, node->capacity, node->load, node->balance);
+		printf("%d;%ld;%ld\n", node->station_id, node->capacity, node->load);
 		inorder(node->right);
 	}
 }

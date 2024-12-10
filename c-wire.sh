@@ -102,7 +102,7 @@ check_arguments() {
         echo "Time : 0.0sec"
         exit 1
     fi
-    if ! [[ "$4" =~ ^[0-9]+$ ]] && [ -n "$4" ]; then
+    if ! [[ "$4" =~ ^[1-5]+$ ]] && [ -n "$4" ]; then
         echo "Erreur : L'identifiant de la centrale doit être un nombre."
         echo "Time : 0.0sec"
         exit 1
@@ -159,22 +159,22 @@ executable_verification() {
 
 data_exploration() {
 case "$STATION_TYPE" in
-    'hvb')  grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7 > "./tmp/hvb_prod.csv" &&
-            grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,5,8 > "./tmp/hvb_comp.csv"
+    'hvb')  grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | sed 's/-/0/g' > "./tmp/hvb_comp_input.csv" &&
+            grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | sed 's/-/0/g' >> "./tmp/hvb_comp_input.csv"
     ;;
-    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7 > "./tmp/hva_prod.csv" &&
-            grep -E "^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f3,5,8 > "./tmp/hva_comp.csv"
+    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7,8 | sed 's/-/0/g' > "./tmp/hva_comp_input.csv" &&
+            grep -E "^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f3,7,8 | sed 's/-/0/g' >> "./tmp/hva_comp_input.csv"
     ;;
     'lv') case "$CONSUMER_TYPE" in 
-            'comp') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 > "./tmp/lv_prod.csv" &&
-                    grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,5,8 > "./tmp/lv_comp.csv"
+            'comp') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' > "./tmp/lv_comp_input.csv" &&
+                    grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_comp_input.csv"
             ;;
-            'indiv') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 > "./tmp/lv_prod.csv" &&
-                    grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,6,8 > "./tmp/lv_indiv.csv"
+            'indiv') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' > "./tmp/lv_indiv_input.csv" &&
+                    grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_indiv_input.csv"
             ;;
-            'all') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 > "./tmp/lv_prod.csv" &&
-            grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,5,8 >> "./tmp/lv_all.csv" &&
-            grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,6,8 >> "./tmp/lv_all.csv"
+            'all') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' > "./tmp/lv_all_input.csv" &&
+            grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_all_input.csv" &&
+            grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_all_input.csv"
             ;;
             *) echo "Erreur d'argument lv"
                 exit 1
@@ -191,7 +191,7 @@ echo "Exploitation des données terminée et tri des données avec succès."
 #--------------------------------------------------------------------------------------------------------------#
 
 execute_program(){
-    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_prod.csv > ./tmp/${STATION_TYPE}_output.csv
+    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv > ./tmp/${STATION_TYPE}_output.csv
     echo "Programme C exécuté avec succès."
 }
 
