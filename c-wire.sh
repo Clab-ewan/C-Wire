@@ -200,31 +200,105 @@ execute_program(){
 # Création des graphiques
 create_graphs() {
     case "$STATION_TYPE" in
-        'hvb') [ -s "tmp/hvb_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hvb_prod.png'; set title 'Production HV-B'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/hvb_prod.csv' with lines"
-                [ -s "tmp/hvb_comp.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hvb_comp.png'; set title 'Consommation HV-B'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/hvb_comp.csv' using 1:2 with lines, 'tmp/hvb_comp.csv' using 1:3 with lines"
+        'hvb') 
+            if [ -s "tmp/hvb_output.csv" ]; then
+                gnuplot <<EOF
+set terminal png
+set output 'graphs/hvb_comp.png'
+set title 'Consommation HV-B'
+set xlabel 'Station ID'
+set ylabel 'Valeurs'
+set datafile separator ';'
+set key autotitle columnhead
+plot 'tmp/hvb_output.csv' using 1:2 with linespoints title 'Capacity', \
+     'tmp/hvb_output.csv' using 1:3 with linespoints title 'Load'
+EOF
+            else
+                echo "Avertissement : Le fichier tmp/hvb_output.csv est vide ou n'existe pas."
+            fi
         ;;
-        'hva') [ -s "tmp/hva_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hva_prod.png'; set title 'Production HV-A'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/hva_prod.csv' with lines"
-                [ -s "tmp/hva_comp.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hva_comp.png'; set title 'Consommation HV-A'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/hva_comp.csv' using 1:2 with lines, 'tmp/hva_comp.csv' using 1:3 with lines"
+        'hva') 
+            if [ -s "tmp/hva_output.csv" ]; then
+                gnuplot <<EOF
+set terminal png
+set output 'graphs/hva_comp.png'
+set title 'Consommation HV-A'
+set xlabel 'Station ID'
+set ylabel 'Valeurs'
+set datafile separator ';'
+set key autotitle columnhead
+plot 'tmp/hva_output.csv' using 1:2 with linespoints title 'Capacity', \
+     'tmp/hva_output.csv' using 1:3 with linespoints title 'Load'
+EOF
+            else
+                echo "Avertissement : Le fichier tmp/hva_output.csv est vide ou n'existe pas."
+            fi
         ;;
-        'lv') case "$CONSUMER_TYPE" in
-                'comp') [ -s "tmp/lv_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_prod.png'; set title 'Production LV'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/lv_prod.csv' with lines"
-                        [ -s "tmp/lv_comp.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_comp.png'; set title 'Consommation LV'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/lv_comp.csv' using 1:2 with lines, 'tmp/lv_comp.csv' using 1:3 with lines"
+        'lv') 
+            case "$CONSUMER_TYPE" in
+                'comp') 
+                    if [ -s "tmp/lv_output.csv" ]; then
+                        gnuplot <<EOF
+set terminal png
+set output 'graphs/lv_comp.png'
+set title 'Consommation LV'
+set xlabel 'Station ID'
+set ylabel 'Valeurs'
+set datafile separator ';'
+set key autotitle columnhead
+plot 'tmp/lv_output.csv' using 1:2 with linespoints title 'Capacity', \
+     'tmp/lv_output.csv' using 1:3 with linespoints title 'Load'
+EOF
+                    else
+                        echo "Avertissement : Le fichier tmp/lv_output.csv est vide ou n'existe pas."
+                    fi
                 ;;
-                'indiv') [ -s "tmp/lv_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_prod.png'; set title 'Production LV'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/lv_prod.csv' with lines"
-                        [ -s "tmp/lv_indiv.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_indiv.png'; set title 'Consommation LV'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/lv_indiv.csv' using 1:2 with lines, 'tmp/lv_indiv.csv' using 1:3 with lines"
+                'indiv') 
+                    if [ -s "tmp/lv_output.csv" ]; then
+                        gnuplot <<EOF
+set terminal png
+set output 'graphs/lv_indiv.png'
+set title 'Consommation LV'
+set xlabel 'Station ID'
+set ylabel 'Valeurs'
+set datafile separator ';'
+set key autotitle columnhead
+plot 'tmp/lv_output.csv' using 1:2 with linespoints title 'Capacity', \
+     'tmp/lv_output.csv' using 1:3 with linespoints title 'Load'
+EOF
+                    else
+                        echo "Avertissement : Le fichier tmp/lv_output.csv est vide ou n'existe pas."
+                    fi
                 ;;
-                'all') [ -s "tmp/lv_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_prod.png'; set title 'Production LV'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/lv_prod.csv' with lines"
-                        [ -s "tmp/lv_all.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_all.png'; set title 'Consommation LV'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/lv_all.csv' using 1:2 with lines, 'tmp/lv_all.csv' using 1:3 with lines"
+                'all') 
+                    if [ -s "tmp/lv_output.csv" ]; then
+                        gnuplot <<EOF
+set terminal png
+set output 'graphs/lv_all.png'
+set title 'Consommation LV'
+set xlabel 'Station ID'
+set ylabel 'Valeurs'
+set datafile separator ';'
+set key autotitle columnhead
+plot 'tmp/lv_output.csv' using 1:2 with linespoints title 'Capacity', \
+     'tmp/lv_output.csv' using 1:3 with linespoints title 'Load'
+EOF
+                    else
+                        echo "Avertissement : Le fichier tmp/lv_output.csv est vide ou n'existe pas."
+                    fi
                 ;;
-                *) echo "Erreur d'argument lv"
+                *) 
+                    echo "Erreur d'argument lv"
                     exit 1
                 ;;
             esac
         ;;
-        *) echo "Erreur d'argument"
+        *) 
+            echo "Erreur d'argument"
             exit 1
         ;;
     esac
+    echo "Graphiques créés avec succès."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
@@ -237,4 +311,4 @@ check_directories
 executable_verification
 data_exploration
 execute_program
-#create_graphs
+create_graphs
