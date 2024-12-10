@@ -22,12 +22,14 @@
 #   - type_consommateur: type de consommateur à traiter (Company, Individual)             #
 #   - id_centrale: identifiant de la centrale à traiter (optionnel)                       #
 #                                                                                         #
-# Exemple: ./c-wire.sh input/c-wire_v00.csv "hva" "comp"                                  #
+# Exemple: ./c-wire.sh input/c-wire_v00.csv hva comp                                      #
 #                                                                                         #
 # cela représente le traitement des données du fichier data.csv pour les stations HV-B    #
 # consommant de l'électricité et connectées à la centrale 1.                              #    
 #                                                                                         #
 ###########################################################################################
+
+#--------------------------------------------------------------------------------------------------------------#
 
 # Affichage de l'aide
 for arg in "$@"; do
@@ -45,32 +47,38 @@ for arg in "$@"; do
     fi
 done
 
+#--------------------------------------------------------------------------------------------------------------#
+
 # Vérification de l'existance des logiciels pour la partie graphique (Gnuplot).
 check_gnuplot(){
-logiciels=("gnuplot" "convert")
-
-for logiciel in "${logiciels[@]}"
-do
-    if command -v "$logiciel" &> /dev/null 
+    if command -v gnuplot &> /dev/null 
     then
-        echo "Les logiciels nécessaires sont installés sur votre système."
+        echo "Gnuplot est installé sur votre système."
     else
-        echo "les logiciels nécessaires ne sont pas installés sur votre système. Installation en cours..."
+        echo "Gnuplot n'est pas installé sur votre système."
         # Installation.
-        sudo apt-get update
-        sudo apt-get install gnuplot imagemagick
-
+        echo "Voulez-vous installer Gnuplot ? (y/n)"
+        read -r reponse
+        if [ "$reponse" == "y" ]; then
+            echo "Installation de Gnuplot..."
+            sudo apt-get update
+            sudo apt-get install gnuplot
+        fi
+        if [ "$reponse" == "n" ]; then
+            echo "Gnuplot n'est pas installé. nous ne pouvons pas continuer."
+            exit 1
+        fi
         # Vérification de l'installation.
         if [ $? -eq 0 ]; then
-            echo "Les logiciels ont été installés avec succès."
+            echo "Gnuplot a été installé avec succès."
         else
-            echo "Erreur lors de l'installation des logiciels."
+            echo "Erreur lors de l'installation de Gnuplot."
+            exit 1
         fi
     fi
-done
 }
 
-
+#--------------------------------------------------------------------------------------------------------------#
 
 # Vérification des arguments passés
 check_arguments() {
@@ -99,7 +107,10 @@ check_arguments() {
         echo "Time : 0.0sec"
         exit 1
     fi
+    echo "Arguments valides."
 }
+
+#--------------------------------------------------------------------------------------------------------------#
 
 INPUT_FILE=$1
 STATION_TYPE=$2
@@ -117,6 +128,8 @@ check_file() {
     fi
 }
 
+#--------------------------------------------------------------------------------------------------------------#
+
 # Création des dossiers nécessaires pour le script et suppresion
 check_directories() {
     rm -rf "./tmp/"
@@ -125,18 +138,24 @@ check_directories() {
             mkdir "$directory"
         fi
     done
+    echo "Dossiers tmp, tests, graphs, codeC/progO créés."
 }
 
-# Vérification de l'exécutable du programme C non veifié a refaire
+#--------------------------------------------------------------------------------------------------------------#
+
+# Vérification de l'exécutable du programme C et compilation si nécessaire
 executable_verification() {
-    if [ ! -f ./CodeC/program ]; then
+    if [ ! -f ./CodeC/progO/exec ]; then
         echo "Compilation en cours..."
-        make -C CodeC || { echo "Erreur de compilation"; exit 1; }
+        make -C codeC || { echo "Erreur de compilation"; exit 1; }
     fi
+    echo "Programme C compilé sans erreurs."
 }
 
 # PowerPlant;hvb;hva;LV;Company;Individual;Capacity;Load
 # [ "$a" = "$b" ] compare character strings
+
+#--------------------------------------------------------------------------------------------------------------#
 
 data_exploration() {
 case "$STATION_TYPE" in
@@ -166,20 +185,56 @@ case "$STATION_TYPE" in
         exit 1
     ;;
 esac
+echo "Exploitation des données terminée et tri des données avec succès."
 }
 
-
+#--------------------------------------------------------------------------------------------------------------#
 
 execute_program(){
-    ./CodeC/program < ./tmp/${STATION_TYPE}_prod.csv > ./tmp/${STATION_TYPE}_output.csv
-    cat ./tmp/${STATION_TYPE}_output.csv | ./CodeC/program
+    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_prod.csv > ./tmp/${STATION_TYPE}_output.csv
+    echo "Programme C exécuté avec succès."
 }
+
+#--------------------------------------------------------------------------------------------------------------#
+
+# Création des graphiques
+create_graphs() {
+    case "$STATION_TYPE" in
+        'hvb') [ -s "tmp/hvb_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hvb_prod.png'; set title 'Production HV-B'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/hvb_prod.csv' with lines"
+                [ -s "tmp/hvb_comp.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hvb_comp.png'; set title 'Consommation HV-B'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/hvb_comp.csv' using 1:2 with lines, 'tmp/hvb_comp.csv' using 1:3 with lines"
+        ;;
+        'hva') [ -s "tmp/hva_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hva_prod.png'; set title 'Production HV-A'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/hva_prod.csv' with lines"
+                [ -s "tmp/hva_comp.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hva_comp.png'; set title 'Consommation HV-A'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/hva_comp.csv' using 1:2 with lines, 'tmp/hva_comp.csv' using 1:3 with lines"
+        ;;
+        'lv') case "$CONSUMER_TYPE" in
+                'comp') [ -s "tmp/lv_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_prod.png'; set title 'Production LV'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/lv_prod.csv' with lines"
+                        [ -s "tmp/lv_comp.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_comp.png'; set title 'Consommation LV'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/lv_comp.csv' using 1:2 with lines, 'tmp/lv_comp.csv' using 1:3 with lines"
+                ;;
+                'indiv') [ -s "tmp/lv_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_prod.png'; set title 'Production LV'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/lv_prod.csv' with lines"
+                        [ -s "tmp/lv_indiv.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_indiv.png'; set title 'Consommation LV'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/lv_indiv.csv' using 1:2 with lines, 'tmp/lv_indiv.csv' using 1:3 with lines"
+                ;;
+                'all') [ -s "tmp/lv_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_prod.png'; set title 'Production LV'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/lv_prod.csv' with lines"
+                        [ -s "tmp/lv_all.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_all.png'; set title 'Consommation LV'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/lv_all.csv' using 1:2 with lines, 'tmp/lv_all.csv' using 1:3 with lines"
+                ;;
+                *) echo "Erreur d'argument lv"
+                    exit 1
+                ;;
+            esac
+        ;;
+        *) echo "Erreur d'argument"
+            exit 1
+        ;;
+    esac
+}
+
+#--------------------------------------------------------------------------------------------------------------#
 
 # Appel des fonctions
 check_arguments "$@"
 check_gnuplot
 check_file
 check_directories
-# executable_verification
-#execute_program
+executable_verification
 data_exploration
+execute_program
+#create_graphs
