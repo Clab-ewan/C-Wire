@@ -195,9 +195,9 @@ echo "Exploitation des données terminée et tri des données avec succès."
 
 execute_program(){
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2hr | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2nr | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
     else
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2hr | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2nr | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
     fi
     echo "Programme C exécuté avec succès."
 }
@@ -206,24 +206,16 @@ execute_program(){
 
 create_lvallminmax() {
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-    tail -n +2 "./tmp/lv_all.csv" |   >> "./tmp/lv_all_minmax.csv"
+    tail -n +2 "./tmp/lv_all.csv" |  awk -F: '{print $0 ":" ($2 - $3)}' | sort -t ":" -k4n >> "./tmp/lv_all_minmax.csv"
     else
-
+    tail -n +2 "./tmp/lv_all_${CENTRAL_ID}.csv" |  awk -F: '{print $0 ":" ($2 - $3)}' | sort -t ":" -k4n >> "./tmp/lv_all_minmax.csv"
     fi 
 }
 
 create_lv_all_graphs() {
-    if [ -s "tmp/lv_all_minmax.csv" ]; then
-        input_file="tmp/lv_all_minmax.csv"
-    else
-        echo "Error: file isn't corresponding"
-        exit 1
-    fi
-
     # Extract the top 10 most loaded and 10 least loaded stations, excluding the first line (header)
-    top_10=$(tail -n +2 "$input_file" | sort -t ";" -k3 -nr | head -n 10)
-    bottom_10=$(tail -n +2 "$input_file" | sort -t ";" -k3 -n | head -n 10)
-
+    top_10=$(tail "./tmp/lv_all_minmax.csv")
+    bottom_10=$(head "./tmp/lv_all_minmax.csv")
     # Create graphs using gnuplot
     gnuplot -e "
     set terminal png size 800,600;
@@ -235,8 +227,8 @@ create_lv_all_graphs() {
     set style histogram cluster gap 1;
     set style fill solid border -1;
     set boxwidth 0.9;
-    set datafile separator ';';
-    plot '-' using (column(3)+0.0):xtic(1) title 'Load' linecolor rgb '#FF0000' with boxes;
+    set datafile separator ':';
+    plot '-' using 4:xtic(1) title 'Load' linecolor rgb '#FF0000' with boxes;
     $top_10
     e"
 
@@ -250,8 +242,8 @@ create_lv_all_graphs() {
     set style histogram cluster gap 1;
     set style fill solid border -1;
     set boxwidth 0.9;
-    set datafile separator ';';
-    plot '-' using (column(3)+0.0):xtic(1) title 'Load' linecolor rgb '#00FF00' with boxes;
+    set datafile separator ':';
+    plot '-' using 4:xtic(1) title 'Load' linecolor rgb '#00FF00' with boxes;
     $bottom_10
     e"
 
@@ -266,9 +258,9 @@ create_lv_all_graphs() {
     set style histogram cluster gap 1;
     set style fill solid border -1;
     set boxwidth 0.9;
-    set datafile separator ';';
-    plot '-' using (column(3)+0.0):xtic(1) title 'Top 10 Load' linecolor rgb '#FF0000' with boxes, \
-         '-' using (column(3)+0.0):xtic(1) title 'Bottom 10 Load' linecolor rgb '#00FF00' with boxes;
+    set datafile separator ':';
+    plot '-' using 4:xtic(1) title 'Top 10 Load' linecolor rgb '#FF0000' with boxes, \
+         '-' using 4:xtic(1) title 'Bottom 10 Load' linecolor rgb '#00FF00' with boxes;
     $top_10
     e
     $bottom_10
@@ -286,7 +278,7 @@ check_directories
 executable_verification
 data_exploration
 execute_program
-if [ ${STATION_TYPE} = 'lv' && ${CONSUMER_TYPE} = 'all' ]; then
+if [[ ${STATION_TYPE} = 'lv' && ${CONSUMER_TYPE} = 'all' ]]; then
 create_lvallminmax
 create_lv_all_graphs
 fi
