@@ -189,20 +189,28 @@ esac
 echo "Exploitation des données terminée et tri des données avec succès."
 }
 
-# sort -t ":" -k2hr >
+
 
 #--------------------------------------------------------------------------------------------------------------#
 
 execute_program(){
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2hr | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
     else
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2hr | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
     fi
     echo "Programme C exécuté avec succès."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
+
+create_lvallminmax() {
+    if [ ${CENTRAL_ID} = "[^-]+" ]; then
+    tail -n +2 "./tmp/lv_all.csv" |   >> "./tmp/lv_all_minmax.csv"
+    else
+
+    fi 
+}
 
 create_lv_all_graphs() {
     if [ -s "tmp/lv_all_minmax.csv" ]; then
@@ -278,6 +286,7 @@ check_directories
 executable_verification
 data_exploration
 execute_program
-if [ ${STATION_TYPE} = 'lv' ]; then
+if [ ${STATION_TYPE} = 'lv' && ${CONSUMER_TYPE} = 'all' ]; then
+create_lvallminmax
 create_lv_all_graphs
 fi
