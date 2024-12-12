@@ -203,12 +203,14 @@ execute_program(){
 #--------------------------------------------------------------------------------------------------------------#
 # Création des graphiques
 create_lv_all_graphs() {
-    if [ -s "tmp/lv_[^-]+output.csv" ]; then
+    if [ -s "tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv" ]; then
         # Extract the top 10 most loaded and 10 least loaded stations
-
-        sort -t ";" -k3,3nr tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}_output.csv | head -n 10 > tmp/top_10_lv.csv
-        sort -t ";" -k3,3n tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}_output.csv  | head -n 10 > tmp/bottom_10_lv.csv
-        
+        sort -t ";" -k3,3nr tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv | head -n 10 > tmp/top_10_lv.csv
+        sort -t ";" -k3,3n tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv  | head -n 10 > tmp/bottom_10_lv.csv
+    else 
+        sort -t ";" -k3,3nr tmp/lv_${CONSUMER_TYPE}.csv | head -n 10 > tmp/top_10_lv.csv
+        sort -t ";" -k3,3n tmp/lv_${CONSUMER_TYPE}.csv  | head -n 10 > tmp/bottom_10_lv.csv
+    fi        
         # Create graphs using gnuplot
         gnuplot -e "
         set terminal png size 800,600;
