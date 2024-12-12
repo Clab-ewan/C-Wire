@@ -216,6 +216,7 @@ create_lv_all_graphs() {
     # Extract the top 10 most loaded and 10 least loaded stations, excluding the first line (header)
     top_10=$(tail "./tmp/lv_all_minmax.csv")
     bottom_10=$(head "./tmp/lv_all_minmax.csv")
+    
     # Create graphs using gnuplot
     gnuplot -e "
     set terminal png size 800,600;
@@ -228,7 +229,7 @@ create_lv_all_graphs() {
     set style fill solid border -1;
     set boxwidth 0.9;
     set datafile separator ':';
-    plot '-' using 4:xtic(1) title 'Load' linecolor rgb '#FF0000' with boxes;
+    plot '-' using (column(4)+0.0):xtic(1) title 'Load' linecolor rgb '#FF0000' with boxes;
     $top_10
     e"
 
@@ -243,7 +244,7 @@ create_lv_all_graphs() {
     set style fill solid border -1;
     set boxwidth 0.9;
     set datafile separator ':';
-    plot '-' using 4:xtic(1) title 'Load' linecolor rgb '#00FF00' with boxes;
+    plot '-' using (column(4)+0.0):xtic(1) title 'Load' linecolor rgb '#00FF00' with boxes;
     $bottom_10
     e"
 
@@ -259,12 +260,13 @@ create_lv_all_graphs() {
     set style fill solid border -1;
     set boxwidth 0.9;
     set datafile separator ':';
-    plot '-' using 4:xtic(1) title 'Top 10 Load' linecolor rgb '#FF0000' with boxes, \
-         '-' using 4:xtic(1) title 'Bottom 10 Load' linecolor rgb '#00FF00' with boxes;
+    plot '-' using (column(4)+0.0):xtic(1) title 'Top 10 Load' linecolor rgb '#FF0000' with boxes, \
+         '-' using (column(4)+0.0):xtic(1) title 'Bottom 10 Load' linecolor rgb '#00FF00' with boxes;
     $top_10
     e
     $bottom_10
     e"
+
     echo "Graphiques créés avec succès."
 }
 
@@ -280,5 +282,5 @@ data_exploration
 execute_program
 if [[ ${STATION_TYPE} = 'lv' && ${CONSUMER_TYPE} = 'all' ]]; then
 create_lvallminmax
-#create_lv_all_graphs
+create_lv_all_graphs
 fi
