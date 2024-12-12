@@ -206,8 +206,8 @@ create_lv_all_graphs() {
     if [ -s "tmp/lv_[^-]+output.csv" ]; then
         # Extract the top 10 most loaded and 10 least loaded stations
 
-        sort -t ";" -k3,3nr tmp/${STATION_TYPE}_${CONSUMER_TYPE}_output_${CENTRAL_ID}.csv | head -n 10 > tmp/top_10_lv.csv
-        sort -t ";" -k3,3n tmp/${STATION_TYPE}_${CONSUMER_TYPE}_output_${CENTRAL_ID}.csv  | head -n 10 > tmp/bottom_10_lv.csv
+        sort -t ";" -k3,3nr tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}_output.csv | head -n 10 > tmp/top_10_lv.csv
+        sort -t ";" -k3,3n tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}_output.csv  | head -n 10 > tmp/bottom_10_lv.csv
         
         # Create graphs using gnuplot
         gnuplot -e "
