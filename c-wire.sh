@@ -195,9 +195,9 @@ echo "Exploitation des données terminée et tri des données avec succès."
 
 execute_program(){
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2nr | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2n | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
     else
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2nr | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2n | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
     fi
     echo "Programme C exécuté avec succès."
 }
