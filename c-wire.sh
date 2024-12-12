@@ -191,115 +191,12 @@ echo "Exploitation des données terminée et tri des données avec succès."
 #--------------------------------------------------------------------------------------------------------------#
 
 execute_program(){
-    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv > ./tmp/${STATION_TYPE}_output.csv
+    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv > ./tmp/${STATION_TYPE}_${CENTRAL_ID}output.csv
     echo "Programme C exécuté avec succès."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
-
 # Création des graphiques
-create_graphs() {
-    case "$STATION_TYPE" in
-        'hvb') 
-            if [ -s "tmp/hvb_output.csv" ]; then
-                gnuplot <<EOF
-set terminal png
-set output 'graphs/hvb_comp.png'
-set title 'Consommation HV-B'
-set xlabel 'Station ID'
-set ylabel 'Valeurs'
-set datafile separator ';'
-set key autotitle columnhead
-plot 'tmp/hvb_output.csv' using 1:2 with linespoints title 'Capacity', \
-     'tmp/hvb_output.csv' using 1:3 with linespoints title 'Load'
-EOF
-            else
-                echo "Avertissement : Le fichier tmp/hvb_output.csv est vide ou n'existe pas."
-            fi
-        ;;
-        'hva') 
-            if [ -s "tmp/hva_output.csv" ]; then
-                gnuplot <<EOF
-set terminal png
-set output 'graphs/hva_comp.png'
-set title 'Consommation HV-A'
-set xlabel 'Station ID'
-set ylabel 'Valeurs'
-set datafile separator ';'
-set key autotitle columnhead
-plot 'tmp/hva_output.csv' using 1:2 with linespoints title 'Capacity', \
-     'tmp/hva_output.csv' using 1:3 with linespoints title 'Load'
-EOF
-            else
-                echo "Avertissement : Le fichier tmp/hva_output.csv est vide ou n'existe pas."
-            fi
-        ;;
-        'lv') 
-            case "$CONSUMER_TYPE" in
-                'comp') 
-                    if [ -s "tmp/lv_output.csv" ]; then
-                        gnuplot <<EOF
-set terminal png
-set output 'graphs/lv_comp.png'
-set title 'Consommation LV'
-set xlabel 'Station ID'
-set ylabel 'Valeurs'
-set datafile separator ';'
-set key autotitle columnhead
-plot 'tmp/lv_output.csv' using 1:2 with linespoints title 'Capacity', \
-     'tmp/lv_output.csv' using 1:3 with linespoints title 'Load'
-EOF
-                    else
-                        echo "Avertissement : Le fichier tmp/lv_output.csv est vide ou n'existe pas."
-                    fi
-                ;;
-                'indiv') 
-                    if [ -s "tmp/lv_output.csv" ]; then
-                        gnuplot <<EOF
-set terminal png
-set output 'graphs/lv_indiv.png'
-set title 'Consommation LV'
-set xlabel 'Station ID'
-set ylabel 'Valeurs'
-set datafile separator ';'
-set key autotitle columnhead
-plot 'tmp/lv_output.csv' using 1:2 with linespoints title 'Capacity', \
-     'tmp/lv_output.csv' using 1:3 with linespoints title 'Load'
-EOF
-                    else
-                        echo "Avertissement : Le fichier tmp/lv_output.csv est vide ou n'existe pas."
-                    fi
-                ;;
-                'all') 
-                    if [ -s "tmp/lv_output.csv" ]; then
-                        gnuplot <<EOF
-set terminal png
-set output 'graphs/lv_all.png'
-set title 'Consommation LV'
-set xlabel 'Station ID'
-set ylabel 'Valeurs'
-set datafile separator ';'
-set key autotitle columnhead
-plot 'tmp/lv_output.csv' using 1:2 with linespoints title 'Capacity', \
-     'tmp/lv_output.csv' using 1:3 with linespoints title 'Load'
-EOF
-                    else
-                        echo "Avertissement : Le fichier tmp/lv_output.csv est vide ou n'existe pas."
-                    fi
-                ;;
-                *) 
-                    echo "Erreur d'argument lv"
-                    exit 1
-                ;;
-            esac
-        ;;
-        *) 
-            echo "Erreur d'argument"
-            exit 1
-        ;;
-    esac
-    echo "Graphiques créés avec succès."
-}
 create_lv_all_graphs() {
     if [ -s "tmp/lv_all_output.csv" ]; then
         # Extract the top 10 most loaded and 10 least loaded stations
@@ -316,4 +213,4 @@ check_directories
 executable_verification
 data_exploration
 execute_program
-create_graphs
+create_lv_all_graphs
