@@ -280,5 +280,5 @@ data_exploration
 execute_program
 if [[ ${STATION_TYPE} = 'lv' && ${CONSUMER_TYPE} = 'all' ]]; then
 create_lvallminmax
-create_lv_all_graphs
+#create_lv_all_graphs
 fi
