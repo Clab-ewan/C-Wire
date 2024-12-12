@@ -203,13 +203,61 @@ execute_program(){
 #--------------------------------------------------------------------------------------------------------------#
 # Création des graphiques
 create_lv_all_graphs() {
-    if [ -s "tmp/lv_all_output.csv" ]; then
+    if [ -s "tmp/lv_[^-]+output.csv" ]; then
         # Extract the top 10 most loaded and 10 least loaded stations
-        sort -t ";" -k3,3nr tmp/lv_all_output_${CENTRAL_ID}.csv | head -n 10 > tmp/top_10_lv.csv
-        sort -t ";" -k3,3n tmp/lv_all_output_${CENTRAL_ID}.csv | head -n 10 > tmp/bottom_10_lv.csv
-        cat
+
+        sort -t ";" -k3,3nr tmp/${STATION_TYPE}_${CONSUMER_TYPE}_output_${CENTRAL_ID}.csv | head -n 10 > tmp/top_10_lv.csv
+        sort -t ";" -k3,3n tmp/${STATION_TYPE}_${CONSUMER_TYPE}_output_${CENTRAL_ID}.csv  | head -n 10 > tmp/bottom_10_lv.csv
+        
+        # Create graphs using gnuplot
+        gnuplot -e "
+        set terminal png size 800,600;
+        set output 'graphs/top_10_lv.png';
+        set title 'Top 10 Most Loaded LV Stations';
+        set xlabel 'Station';
+        set ylabel 'Load';
+        set style data histogram;
+        set style histogram cluster gap 1;
+        set style fill solid border -1;
+        set boxwidth 0.9;
+        set datafile separator ';';
+        plot 'tmp/top_10_lv.csv' using 3:xtic(1) title 'Load' linecolor rgb 'red';
+        "
+        
+        gnuplot -e "
+        set terminal png size 800,600;
+        set output 'graphs/bottom_10_lv.png';
+        set title 'Top 10 Least Loaded LV Stations';
+        set xlabel 'Station';
+        set ylabel 'Load';
+        set style data histogram;
+        set style histogram cluster gap 1;
+        set style fill solid border -1;
+        set boxwidth 0.9;
+        set datafile separator ';';
+        plot 'tmp/bottom_10_lv.csv' using 3:xtic(1) title 'Load' linecolor rgb 'green';
+        "
+
+        # Combine top and bottom 10 into one graph
+        gnuplot -e "
+        set terminal png size 1200,800;
+        set output 'graphs/top_bottom_10_lv.png';
+        set title 'Top and Bottom 10 LV Stations Load';
+        set xlabel 'Station';
+        set ylabel 'Load';
+        set style data histogram;
+        set style histogram cluster gap 1;
+        set style fill solid border -1;
+        set boxwidth 0.9;
+        set datafile separator ';';
+        plot 'tmp/top_10_lv.csv' using 3:xtic(1) title 'Top 10 Load' linecolor rgb 'red', \
+             'tmp/bottom_10_lv.csv' using 3:xtic(1) title 'Bottom 10 Load' linecolor rgb 'green';
+        "
+
+        echo "Graphiques créés avec succès."
     fi
 }
+mv graphs/*.png /path/to/desired/directory/graphs/
 #--------------------------------------------------------------------------------------------------------------#
 
 # Appel des fonctions
