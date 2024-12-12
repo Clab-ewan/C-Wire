@@ -195,9 +195,9 @@ echo "Exploitation des données terminée et tri des données avec succès."
 
 execute_program(){
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2hr | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2h | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
     else
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2hr | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2h | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
     fi
     echo "Programme C exécuté avec succès."
 }
@@ -206,10 +206,12 @@ execute_program(){
 
 create_lvallminmax() {
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-    tail -n +2 "./tmp/lv_all.csv" |   >> "./tmp/lv_all_minmax.csv"
+        echo "Station LV:Capacité:Consommation" > "./tmp/lv_all_minmax.csv"
+        tail -n +2 "./tmp/lv_all.csv" | awk -F ":" '{print $1 ":" $2 ":" $3 ":" ($2-$3>=0 ? $2-$3 : $3-$2)}' | sort -t ":" -k4,4n | awk -F ":" 'NR<=10{print $1 ":" $2 ":" $3} END{for(i=(NR<10?1:NR-9);i<=NR;i++) print $1 ":" $2 ":" $3}' | uniq >> "./tmp/lv_all_minmax.csv"
     else
-
-    fi 
+        tail -n +2 "./tmp/lv_all.csv" | grep "^${CENTRAL_ID}:" | awk -F ":" '{print $1 ":" $2 ":" $3 ":" ($2-$3>=0 ? $2-$3 : $3-$2)}' | sort -t ":" -k4,4n | awk -F ":" 'NR<=10{print $1 ":" $2 ":" $3} END{for(i=NR-9;i<=NR;i++) print $1 ":" $2 ":" $3}' | uniq >> "./tmp/lv_all_minmax.csv"
+    fi
+    echo "Création du fichier lv_all_minmax.csv terminée."
 }
 
 create_lv_all_graphs() {
@@ -286,7 +288,7 @@ check_directories
 executable_verification
 data_exploration
 execute_program
-if [ ${STATION_TYPE} = 'lv' && ${CONSUMER_TYPE} = 'all' ]; then
+if [[ ${STATION_TYPE} = 'lv' && ${CONSUMER_TYPE} = 'all' ]]; then
 create_lvallminmax
-create_lv_all_graphs
+#create_lv_all_graphs
 fi
