@@ -192,7 +192,11 @@ echo "Exploitation des données terminée et tri des données avec succès."
 #--------------------------------------------------------------------------------------------------------------#
 
 execute_program(){
-    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv > ./tmp/${STATION_TYPE}_${CENTRAL_ID}output.csv
+    if [ ${CENTRAL_ID} = "[^-]+" ]; then
+    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
+    else
+    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
+    fi
     echo "Programme C exécuté avec succès."
 }
 
@@ -201,9 +205,11 @@ execute_program(){
 create_lv_all_graphs() {
     if [ -s "tmp/lv_all_output.csv" ]; then
         # Extract the top 10 most loaded and 10 least loaded stations
-        sort -t ";" -k3,3nr tmp/lv_all_output.csv | head -n 10 > tmp/top_10_lv.csv
-        sort -t ";" -k3,3n tmp/lv_all_output.csv | head -n 10 > tmp/bottom_10_lv.csv
+        sort -t ";" -k3,3nr tmp/lv_all_output_${CENTRAL_ID}.csv | head -n 10 > tmp/top_10_lv.csv
+        sort -t ";" -k3,3n tmp/lv_all_output_${CENTRAL_ID}.csv | head -n 10 > tmp/bottom_10_lv.csv
         cat
+    fi
+}
 #--------------------------------------------------------------------------------------------------------------#
 
 # Appel des fonctions
