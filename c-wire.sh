@@ -147,7 +147,7 @@ check_directories() {
 executable_verification() {
     if [ ! -f ./CodeC/progO/exec ]; then
         echo "Compilation en cours..."
-        make -C codeC || { echo "Erreur de compilation"; exit 1; }
+        make -C codeC > /dev/null 2>&1 || { echo "Erreur de compilation"; exit 1; }
     fi
     echo "Programme C compilé sans erreurs."
 }
@@ -189,27 +189,32 @@ esac
 echo "Exploitation des données terminée et tri des données avec succès."
 }
 
+# sort -t ":" -k2hr >
+
 #--------------------------------------------------------------------------------------------------------------#
 
 execute_program(){
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
     else
-    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
+    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
     fi
     echo "Programme C exécuté avec succès."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
-# Création des graphiques
+
 create_lv_all_graphs() {
     if [ -s "tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv" ]; then
         # Extract the top 10 most loaded and 10 least loaded stations
-        sort -t ";" -k3,3nr tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv | head -n 10 > tmp/top_10_lv.csv
-        sort -t ";" -k3,3n tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv  | head -n 10 > tmp/bottom_10_lv.csv
-    else 
-        sort -t ";" -k3,3nr tmp/lv_${CONSUMER_TYPE}.csv | head -n 10 > tmp/top_10_lv.csv
-        sort -t ";" -k3,3n tmp/lv_${CONSUMER_TYPE}.csv  | head -n 10 > tmp/bottom_10_lv.csv
+        sort -t ":" -k3,3nr tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv | head -n 10 > tmp/top_10_lv.csv
+        sort -t ":" -k3,3n tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv  | head -n 10 > tmp/bottom_10_lv.csv
+    elif [ -s "tmp/lv_${CONSUMER_TYPE}.csv" ]; then
+        sort -t ":" -k3,3nr tmp/lv_${CONSUMER_TYPE}.csv | head -n 10 > tmp/top_10_lv.csv
+        sort -t ":" -k3,3n tmp/lv_${CONSUMER_TYPE}.csv  | head -n 10 > tmp/bottom_10_lv.csv
+    else
+    echo "Error : file isn't corresponding"
+    exit 1
     fi        
         # Create graphs using gnuplot
         gnuplot -e "
@@ -222,7 +227,7 @@ create_lv_all_graphs() {
         set style histogram cluster gap 1;
         set style fill solid border -1;
         set boxwidth 0.9;
-        set datafile separator ';';
+        set datafile separator ':';
         plot 'tmp/top_10_lv.csv' using 3:xtic(1) title 'Load' linecolor rgb 'red';
         "
         
@@ -236,7 +241,7 @@ create_lv_all_graphs() {
         set style histogram cluster gap 1;
         set style fill solid border -1;
         set boxwidth 0.9;
-        set datafile separator ';';
+        set datafile separator ':';
         plot 'tmp/bottom_10_lv.csv' using 3:xtic(1) title 'Load' linecolor rgb 'green';
         "
 
@@ -251,15 +256,14 @@ create_lv_all_graphs() {
         set style histogram cluster gap 1;
         set style fill solid border -1;
         set boxwidth 0.9;
-        set datafile separator ';';
+        set datafile separator ':';
         plot 'tmp/top_10_lv.csv' using 3:xtic(1) title 'Top 10 Load' linecolor rgb 'red', \
              'tmp/bottom_10_lv.csv' using 3:xtic(1) title 'Bottom 10 Load' linecolor rgb 'green';
         "
-
         echo "Graphiques créés avec succès."
-    fi
+        # mv graphs/*.png /path/to/desired/directory/graphs/
 }
-mv graphs/*.png /path/to/desired/directory/graphs/
+
 #--------------------------------------------------------------------------------------------------------------#
 
 # Appel des fonctions
@@ -270,4 +274,6 @@ check_directories
 executable_verification
 data_exploration
 execute_program
+if [ ${STATION_TYPE} = 'lv' ]; then
 create_lv_all_graphs
+fi

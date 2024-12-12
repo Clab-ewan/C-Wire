@@ -12,7 +12,7 @@ int main(){
     while (scanf("%d;%ld;%ld\n", &station_id, &capacity, &load) != EOF) {// Read the data from the standard input
         root = insertAVL(root, station_id, capacity, load, &h);
     }
-    printf("Station_id;capacity;load\n");
+    printf("Station_id:capacity:load\n");
     inorder(root); // Display the AVL tree in infix order
     root = freeAVL(root);
     return 0;
