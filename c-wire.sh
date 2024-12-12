@@ -102,7 +102,7 @@ check_arguments() {
         echo "Time : 0.0sec"
         exit 1
     fi
-    if ! [[ "$4" =~ ^[0-9]+$ ]] && [ -n "$4" ]; then
+    if ! [[ "$4" =~ ^[1-5]+$ ]] && [ -n "$4" ]; then
         echo "Erreur : L'identifiant de la centrale doit être un nombre."
         echo "Time : 0.0sec"
         exit 1
@@ -159,22 +159,23 @@ executable_verification() {
 
 data_exploration() {
 case "$STATION_TYPE" in
-    'hvb')  grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7 > "./tmp/hvb_input.csv" &&
-            grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,5,8 >> "./tmp/hvb_input.csv"
+    'hvb')  grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | sed 's/-/0/g' > "./tmp/hvb_comp_input.csv" &&
+            grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | sed 's/-/0/g' >> "./tmp/hvb_comp_input.csv"
     ;;
-    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7 > "./tmp/hva_input.csv" &&
-            grep -E "^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f3,5,8 >> "./tmp/hva_input.csv"
+    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7,8 | sed 's/-/0/g' > "./tmp/hva_comp_input.csv" &&
+            grep -E "^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f3,7,8 | sed 's/-/0/g' >> "./tmp/hva_comp_input.csv"
     ;;
     'lv') case "$CONSUMER_TYPE" in 
-            'comp') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 > "./tmp/lv_comp_input.csv" &&
-                    grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,5,8 >> "./tmp/lv_comp_input.csv"
+            'comp') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' > "./tmp/lv_comp_input.csv" &&
+                    grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_comp_input.csv"
             ;;
-            'indiv') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 > "./tmp/lv_indiv_input.csv" &&
-                    grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,6,8 >> "./tmp/lv_indiv_input.csv"
+            'indiv') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' > "./tmp/lv_indiv_input.csv" &&
+                    grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_indiv_input.csv"
             ;;
-            'all') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7 > "./tmp/lv_prod.csv" &&
-            grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,5,8 >> "./tmp/lv_all_input.csv" &&
-            grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,6,8 >> "./tmp/lv_all_input.csv"
+            'all') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' > "./tmp/lv_all_input.csv" &&
+            grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_all_input.csv" &&
+            grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_all_input.csv"
+
             ;;
             *) echo "Erreur d'argument lv"
                 exit 1
@@ -191,42 +192,18 @@ echo "Exploitation des données terminée et tri des données avec succès."
 #--------------------------------------------------------------------------------------------------------------#
 
 execute_program(){
-    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_prod.csv > ./tmp/${STATION_TYPE}_output.csv
+    ./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv > ./tmp/${STATION_TYPE}_${CENTRAL_ID}output.csv
     echo "Programme C exécuté avec succès."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
-
 # Création des graphiques
-create_graphs() {
-    case "$STATION_TYPE" in
-        'hvb') [ -s "tmp/hvb_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hvb_prod.png'; set title 'Production HV-B'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/hvb_prod.csv' with lines"
-                [ -s "tmp/hvb_comp.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hvb_comp.png'; set title 'Consommation HV-B'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/hvb_comp.csv' using 1:2 with lines, 'tmp/hvb_comp.csv' using 1:3 with lines"
-        ;;
-        'hva') [ -s "tmp/hva_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hva_prod.png'; set title 'Production HV-A'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/hva_prod.csv' with lines"
-                [ -s "tmp/hva_comp.csv" ] && gnuplot -e "set terminal png; set output 'graphs/hva_comp.png'; set title 'Consommation HV-A'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/hva_comp.csv' using 1:2 with lines, 'tmp/hva_comp.csv' using 1:3 with lines"
-        ;;
-        'lv') case "$CONSUMER_TYPE" in
-                'comp') [ -s "tmp/lv_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_prod.png'; set title 'Production LV'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/lv_prod.csv' with lines"
-                        [ -s "tmp/lv_comp.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_comp.png'; set title 'Consommation LV'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/lv_comp.csv' using 1:2 with lines, 'tmp/lv_comp.csv' using 1:3 with lines"
-                ;;
-                'indiv') [ -s "tmp/lv_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_prod.png'; set title 'Production LV'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/lv_prod.csv' with lines"
-                        [ -s "tmp/lv_indiv.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_indiv.png'; set title 'Consommation LV'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/lv_indiv.csv' using 1:2 with lines, 'tmp/lv_indiv.csv' using 1:3 with lines"
-                ;;
-                'all') [ -s "tmp/lv_prod.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_prod.png'; set title 'Production LV'; set xlabel 'Temps'; set ylabel 'Production'; plot 'tmp/lv_prod.csv' with lines"
-                        [ -s "tmp/lv_all.csv" ] && gnuplot -e "set terminal png; set output 'graphs/lv_all.png'; set title 'Consommation LV'; set xlabel 'Temps'; set ylabel 'Consommation'; plot 'tmp/lv_all.csv' using 1:2 with lines, 'tmp/lv_all.csv' using 1:3 with lines"
-                ;;
-                *) echo "Erreur d'argument lv"
-                    exit 1
-                ;;
-            esac
-        ;;
-        *) echo "Erreur d'argument"
-            exit 1
-        ;;
-    esac
-}
-
+create_lv_all_graphs() {
+    if [ -s "tmp/lv_all_output.csv" ]; then
+        # Extract the top 10 most loaded and 10 least loaded stations
+        sort -t ";" -k3,3nr tmp/lv_all_output.csv | head -n 10 > tmp/top_10_lv.csv
+        sort -t ";" -k3,3n tmp/lv_all_output.csv | head -n 10 > tmp/bottom_10_lv.csv
+        cat
 #--------------------------------------------------------------------------------------------------------------#
 
 # Appel des fonctions
@@ -237,4 +214,4 @@ check_directories
 executable_verification
 data_exploration
 execute_program
-#create_graphs
+create_lv_all_graphs
