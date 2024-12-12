@@ -300,7 +300,12 @@ EOF
     esac
     echo "Graphiques créés avec succès."
 }
-
+create_lv_all_graphs() {
+    if [ -s "tmp/lv_all_output.csv" ]; then
+        # Extract the top 10 most loaded and 10 least loaded stations
+        sort -t ";" -k3,3nr tmp/lv_all_output.csv | head -n 10 > tmp/top_10_lv.csv
+        sort -t ";" -k3,3n tmp/lv_all_output.csv | head -n 10 > tmp/bottom_10_lv.csv
+        cat
 #--------------------------------------------------------------------------------------------------------------#
 
 # Appel des fonctions
