@@ -205,63 +205,67 @@ execute_program(){
 #--------------------------------------------------------------------------------------------------------------#
 
 create_lv_all_graphs() {
-    if [ -s "tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv" ]; then
-        # Extract the top 10 most loaded and 10 least loaded stations
-        sort -t ":" -k3,3nr tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv | head -n 10 > tmp/top_10_lv.csv
-        sort -t ":" -k3,3n tmp/lv_${CONSUMER_TYPE}_${CENTRAL_ID}.csv  | head -n 10 > tmp/bottom_10_lv.csv
-    elif [ -s "tmp/lv_${CONSUMER_TYPE}.csv" ]; then
-        sort -t ":" -k3,3nr tmp/lv_${CONSUMER_TYPE}.csv | head -n 10 > tmp/top_10_lv.csv
-        sort -t ":" -k3,3n tmp/lv_${CONSUMER_TYPE}.csv  | head -n 10 > tmp/bottom_10_lv.csv
+    if [ -s "tmp/lv_all_minmax.csv" ]; then
+        input_file="tmp/lv_all_minmax.csv"
     else
-    echo "Error : file isn't corresponding"
-    exit 1
-    fi        
-        # Create graphs using gnuplot
-        gnuplot -e "
-        set terminal png size 800,600;
-        set output 'graphs/top_10_lv.png';
-        set title 'Top 10 Most Loaded LV Stations';
-        set xlabel 'Station';
-        set ylabel 'Load';
-        set style data histogram;
-        set style histogram cluster gap 1;
-        set style fill solid border -1;
-        set boxwidth 0.9;
-        set datafile separator ':';
-        plot 'tmp/top_10_lv.csv' using 3:xtic(1) title 'Load' linecolor rgb 'red';
-        "
-        
-        gnuplot -e "
-        set terminal png size 800,600;
-        set output 'graphs/bottom_10_lv.png';
-        set title 'Top 10 Least Loaded LV Stations';
-        set xlabel 'Station';
-        set ylabel 'Load';
-        set style data histogram;
-        set style histogram cluster gap 1;
-        set style fill solid border -1;
-        set boxwidth 0.9;
-        set datafile separator ':';
-        plot 'tmp/bottom_10_lv.csv' using 3:xtic(1) title 'Load' linecolor rgb 'green';
-        "
+        echo "Error: file isn't corresponding"
+        exit 1
+    fi
 
-        # Combine top and bottom 10 into one graph
-        gnuplot -e "
-        set terminal png size 1200,800;
-        set output 'graphs/top_bottom_10_lv.png';
-        set title 'Top and Bottom 10 LV Stations Load';
-        set xlabel 'Station';
-        set ylabel 'Load';
-        set style data histogram;
-        set style histogram cluster gap 1;
-        set style fill solid border -1;
-        set boxwidth 0.9;
-        set datafile separator ':';
-        plot 'tmp/top_10_lv.csv' using 3:xtic(1) title 'Top 10 Load' linecolor rgb 'red', \
-             'tmp/bottom_10_lv.csv' using 3:xtic(1) title 'Bottom 10 Load' linecolor rgb 'green';
-        "
-        echo "Graphiques créés avec succès."
-        # mv graphs/*.png /path/to/desired/directory/graphs/
+    # Extract the top 10 most loaded and 10 least loaded stations, excluding the first line (header)
+    top_10=$(tail -n +2 "$input_file" | sort -t ";" -k3 -nr | head -n 10)
+    bottom_10=$(tail -n +2 "$input_file" | sort -t ";" -k3 -n | head -n 10)
+
+    # Create graphs using gnuplot
+    gnuplot -e "
+    set terminal png size 800,600;
+    set output 'graphs/top_10_lv.png';
+    set title 'Top 10 Most Loaded LV Stations';
+    set xlabel 'Station';
+    set ylabel 'Load';
+    set style data histogram;
+    set style histogram cluster gap 1;
+    set style fill solid border -1;
+    set boxwidth 0.9;
+    set datafile separator ';';
+    plot '-' using (column(3)+0.0):xtic(1) title 'Load' linecolor rgb '#FF0000' with boxes;
+    $top_10
+    e"
+
+    gnuplot -e "
+    set terminal png size 800,600;
+    set output 'graphs/bottom_10_lv.png';
+    set title 'Top 10 Least Loaded LV Stations';
+    set xlabel 'Station';
+    set ylabel 'Load';
+    set style data histogram;
+    set style histogram cluster gap 1;
+    set style fill solid border -1;
+    set boxwidth 0.9;
+    set datafile separator ';';
+    plot '-' using (column(3)+0.0):xtic(1) title 'Load' linecolor rgb '#00FF00' with boxes;
+    $bottom_10
+    e"
+
+    # Combine top and bottom 10 into one graph
+    gnuplot -e "
+    set terminal png size 1200,800;
+    set output 'graphs/top_bottom_10_lv.png';
+    set title 'Top and Bottom 10 LV Stations Load';
+    set xlabel 'Station';
+    set ylabel 'Load';
+    set style data histogram;
+    set style histogram cluster gap 1;
+    set style fill solid border -1;
+    set boxwidth 0.9;
+    set datafile separator ';';
+    plot '-' using (column(3)+0.0):xtic(1) title 'Top 10 Load' linecolor rgb '#FF0000' with boxes, \
+         '-' using (column(3)+0.0):xtic(1) title 'Bottom 10 Load' linecolor rgb '#00FF00' with boxes;
+    $top_10
+    e
+    $bottom_10
+    e"
+    echo "Graphiques créés avec succès."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
