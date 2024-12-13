@@ -158,6 +158,7 @@ executable_verification() {
 #--------------------------------------------------------------------------------------------------------------#
 
 data_exploration() {
+    start_time=$(date +%s)
 case "$STATION_TYPE" in
     'hvb')  grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | sed 's/-/0/g' > "./tmp/hvb_comp_input.csv" &&
             grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | sed 's/-/0/g' >> "./tmp/hvb_comp_input.csv"
@@ -186,7 +187,9 @@ case "$STATION_TYPE" in
         exit 1
     ;;
 esac
-echo "Exploitation des données terminée et tri des données avec succès."
+end_time=$(date +%s.%N)
+execution_time=$(echo "$end_time - $start_time" | bc)
+echo "Exploitation des données terminée et tri des données avec succès fait en $execution_time sec."
 }
 
 
@@ -194,12 +197,16 @@ echo "Exploitation des données terminée et tri des données avec succès."
 #--------------------------------------------------------------------------------------------------------------#
 
 execute_program(){
+    start_time=$(date +%s)
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
     (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2n | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
     else
     (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2n | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
     fi
-    echo "Programme C exécuté avec succès."
+    end_time=$(date +%s.%N)
+    execution_time=$(echo "$end_time - $start_time" | bc)
+
+    echo "Programme C exécuté avec succès. en $execution_time sec."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
@@ -212,46 +219,18 @@ create_lvallminmax() {
     fi 
 }
 
+# ajouter le temps de traitement
+
 create_lv_all_graphs() {
-    # Extraire les 10 stations les plus chargées et les 10 moins chargées, en excluant la première ligne (en-tête)
-    top_10=$(tail -n +2 "./tmp/lv_all_minmax.csv" | sort -t':' -k4 -nr | head -n 10)
-    bottom_10=$(tail -n +2 "./tmp/lv_all_minmax.csv" | sort -t':' -k4 -n | head -n 10)
+    start_time=$(date +%s)
+    # Extraire les 10 postes LV les plus chargés et les 10 postes LV les moins chargés
+    head -n 10 ./tmp/lv_all_minmax.csv > ./tmp/top_10_data.txt
+    tail -n 10 ./tmp/lv_all_minmax.csv > ./tmp/bottom_10_data.txt
 
-    # Créer des fichiers temporaires pour les données à plotter
-    echo "$top_10" > ./tmp/top_10_data.txt
-    echo "$bottom_10" > ./tmp/bottom_10_data.txt
+    # Combiner les 10 premiers et les 10 derniers en un seul graphique superposé
+    combined_data=$(paste -d '\n' ./tmp/top_10_data.txt ./tmp/bottom_10_data.txt)
+    echo "$combined_data" > ./tmp/combined_data.txt
 
-    # Créer le graphique des 10 stations les plus chargées
-    gnuplot -e "
-    set terminal png size 800,600;
-    set output 'graphs/top_10_lv.png';
-    set title 'Top 10 Most Loaded LV Stations';
-    set xlabel 'Station';
-    set ylabel 'Load';
-    set style data histogram;
-    set style histogram cluster gap 1;
-    set style fill solid border -1;
-    set boxwidth 0.9;
-    set datafile separator ':';
-    plot './tmp/top_10_data.txt' using (column(4)+0.0):xtic(1) title 'Load' linecolor rgb '#FF0000' with boxes;
-    "
-
-    # Créer le graphique des 10 stations les moins chargées
-    gnuplot -e "
-    set terminal png size 800,600;
-    set output 'graphs/bottom_10_lv.png';
-    set title 'Top 10 Least Loaded LV Stations';
-    set xlabel 'Station';
-    set ylabel 'Load';
-    set style data histogram;
-    set style histogram cluster gap 1;
-    set style fill solid border -1;
-    set boxwidth 0.9;
-    set datafile separator ':';
-    plot './tmp/bottom_10_data.txt' using (column(4)+0.0):xtic(1) title 'Load' linecolor rgb '#00FF00' with boxes;
-    "
-
-    # Combiner les 10 premiers et les 10 derniers en un seul graphique
     gnuplot -e "
     set terminal png size 1200,800;
     set output 'graphs/top_bottom_10_lv.png';
@@ -263,14 +242,16 @@ create_lv_all_graphs() {
     set style fill solid border -1;
     set boxwidth 0.9;
     set datafile separator ':';
-    plot './tmp/top_10_data.txt' using (column(4)+0.0):xtic(1) title 'Top 10 Load' linecolor rgb '#FF0000' with boxes, \
-         './tmp/bottom_10_data.txt' using (column(4)+0.0):xtic(1) title 'Bottom 10 Load' linecolor rgb '#00FF00' with boxes;
+    set yrange [0:*];
+    plot './tmp/combined_data.txt' using (column(4) > 0 ? column(4) : 1/0):xtic(1) title 'Surplus' linecolor rgb '#00FF00' with boxes, \
+         '' using (column(4) <= 0 ? -column(4) : 1/0):xtic(1) title 'Deficit' linecolor rgb '#FF0000' with boxes;
     "
 
     # Nettoyer les fichiers temporaires
-    rm ./tmp/top_10_data.txt ./tmp/bottom_10_data.txt
-
-    echo "Graphiques créés avec succès."
+    rm ./tmp/top_10_data.txt ./tmp/bottom_10_data.txt ./tmp/combined_data.txt
+    end_time=$(date +%s.%N)
+    execution_time=$(echo "$end_time - $start_time" | bc)
+    echo "Graphiques créés avec succès en $execution_time sec."
 }
 
 
