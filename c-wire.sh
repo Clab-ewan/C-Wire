@@ -158,7 +158,7 @@ executable_verification() {
 #--------------------------------------------------------------------------------------------------------------#
 
 data_exploration() {
-    start_time=$(date +%s)
+start_time=$(date +%s)
 case "$STATION_TYPE" in
     'hvb')  grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | sed 's/-/0/g' > "./tmp/hvb_comp_input.csv" &&
             grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | sed 's/-/0/g' >> "./tmp/hvb_comp_input.csv"
@@ -213,9 +213,9 @@ execute_program(){
 
 create_lvallminmax() {
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-    tail -n +2 "./tmp/lv_all.csv" |  awk -F: '{print $0 ":" ($2 - $3)}' | sort -t ":" -k4n >> "./tmp/lv_all_minmax.csv"
+        tail -n +2 "./tmp/lv_all.csv" | awk -F: '{print $0 ":" ($2 - $3)}' | sort -t ":" -k4n | (head -n 10; tail -n 10) >> "./tmp/lv_all_minmax.csv"
     else
-    tail -n +2 "./tmp/lv_all_${CENTRAL_ID}.csv" |  awk -F: '{print $0 ":" ($2 - $3)}' | sort -t ":" -k4n >> "./tmp/lv_all_minmax.csv"
+        tail -n +2 "./tmp/lv_all_${CENTRAL_ID}.csv" | awk -F: '{print $0 ":" ($2 - $3)}' | sort -t ":" -k4n | (head -n 10; tail -n 10) >> "./tmp/lv_all_minmax.csv"
     fi 
 }
 
@@ -223,32 +223,37 @@ create_lvallminmax() {
 
 create_lv_all_graphs() {
     start_time=$(date +%s)
-    # Extraire les 10 postes LV les plus chargés et les 10 postes LV les moins chargés
-    head -n 10 ./tmp/lv_all_minmax.csv > ./tmp/top_10_data.txt
-    tail -n 10 ./tmp/lv_all_minmax.csv > ./tmp/bottom_10_data.txt
 
-    # Combiner les 10 premiers et les 10 derniers en un seul graphique superposé
-    combined_data=$(paste -d '\n' ./tmp/top_10_data.txt ./tmp/bottom_10_data.txt)
-    echo "$combined_data" > ./tmp/combined_data.txt
+    gnuplot <<EOF
+        set terminal pngcairo size 800,600
+        set output "./graphs/lv_all_minmax.png"
 
-    gnuplot -e "
-    set terminal png size 1200,800;
-    set output 'graphs/top_bottom_10_lv.png';
-    set title 'Top and Bottom 10 LV Stations Load';
-    set xlabel 'Station';
-    set ylabel 'Load';
-    set style data histogram;
-    set style histogram cluster gap 1;
-    set style fill solid border -1;
-    set boxwidth 0.9;
-    set datafile separator ':';
-    set yrange [0:*];
-    plot './tmp/combined_data.txt' using (column(4) > 0 ? column(4) : 1/0):xtic(1) title 'Surplus' linecolor rgb '#00FF00' with boxes, \
-         '' using (column(4) <= 0 ? -column(4) : 1/0):xtic(1) title 'Deficit' linecolor rgb '#FF0000' with boxes;
-    "
+        set object 1 rectangle from screen 0,0 to screen 1,1 behind fc rgb "white" fillstyle solid 1.0
+        set border lc rgb "black"
+        set grid lc rgb "gray"
+        set key textcolor rgb "black"
+        set title textcolor rgb "black"
+        set xlabel textcolor rgb "black"
+        set ylabel textcolor rgb "black"
 
-    # Nettoyer les fichiers temporaires
-    rm ./tmp/top_10_data.txt ./tmp/bottom_10_data.txt ./tmp/combined_data.txt
+        set title "Top 10 et Bas 10 des consommateurs LV" font "Arial, 16"
+        set xlabel "Poste LV" font "Arial, 12"
+        set ylabel "Consommation (kW)" font "Arial, 12"
+        set key top right
+
+        set datafile separator ":"
+
+        set style data histogram
+        set style histogram cluster rowstacked
+        set style fill solid 1.0 noborder
+        set boxwidth 0.8 relative
+        set grid ytics lw 1
+        set border 3
+
+        plot './tmp/lv_all_minmax.csv' using 2:xtic(1) title 'Dans la Limite' lc rgb "green", \
+            '' using (abs(\$2-\$3)):xtic(1) title 'Dépassement' lc rgb "red"
+EOF
+
     end_time=$(date +%s.%N)
     execution_time=$(echo "$end_time - $start_time" | bc)
     echo "Graphiques créés avec succès en $execution_time sec."
