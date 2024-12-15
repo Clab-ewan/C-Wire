@@ -1,7 +1,9 @@
 
 # C-Wire Project
 
-C-Wire est un projet qui consiste en la gestion et la régulation de systèmes de câblage. Ce dépôt contient le code source, des scripts, ainsi que des documents relatifs au projet. 
+Ce projet consiste à développer un programme pour synthétiser les données d'un système de distribution d'électricité.
+
+Pour ce faire, un fichier .csv est requis, contenant un ensemble de données détaillant la distribution d'électricité en France, depuis les centrales électriques, à travers les sous-stations de distribution, jusqu'aux entreprises et particuliers, qui sont les clients finaux.
 
 ## Contenu du projet
 
@@ -13,6 +15,7 @@ Le répertoire contient les fichiers suivants :
 - **c-wire.sh** : Script shell pour l'exécution des commandes principales du projet.
 - **codeC/** : Répertoire contenant le code C source du projet.
 - **input/** : Répertoire contenant des fichiers d'entrée nécessaires pour l'exécution du projet.
+- **graphs/** : Répertoire contenant le graphique dans le cas de lv all
 
 ## Installation
 
@@ -28,6 +31,7 @@ Pour installer et exécuter ce projet, suivez ces étapes :
    cd C-Wire
    ```
 
+3. Allez dans le répertoire input du projet et déposer votre fichier données requis 
 
 ## Utilisation
 
@@ -37,12 +41,32 @@ Une fois le projet installé, vous pouvez l'exécuter en utilisant le fichier `c
 
 ### Commande du script
 
-vous pouvez l'exécuter par exemple de la manière suivante :
+Exécutez le script de la manière suivante :
+```bash
+./c-wire.sh <csv_file> <station_type> <consumer_type> [central_id]
+```
+
+### Options du script
+
+Le script `c-wire.sh` accepte les arguments suivants :
+
+- `<csv_file>` : Chemin vers le fichier CSV contenant les données de distribution d'électricité.
+- `<station_type>` : Type de station (ex. `hvb` pour haute tension B, `hva` pour haute tension A, `lv` pour basse tension). L’énergie est d’abord envoyée à très haute tension (~400 kV) vers les sous-stations HV-B, qui la réduisent à plus de 50 kV pour une grande zone. Elle est ensuite transférée aux sous-stations HV-A pour une réduction à plus de 1000 V pour une zone régionale. Enfin, les postes LV distribuent l’énergie aux particuliers et petites entreprises (230 V).
+
+- `<consumer_type>` : Type de consommateur (par exemple, `comp` pour compagnie, `ind` pour individuel, `all` pour tout type).
+
+- `[central_id]` : (Optionnel) Identifiant de la centrale électrique spécifique à analyser.
+
+- `-h` : permettant d'activer l'option d'aide en cas d'oublie de cette consigne
+
+### Exemple d'exécution
+
+Vous pouvez exécuter le script de la manière suivante :
 ```bash
 ./c-wire.sh input/c-wire_v00.dat hvb comp
 ```
 
-Cela exécutera les processus définis dans le script pour gérer ou simuler les aspects du projet C-Wire.
+Cela exécutera les processus définis dans le script pour gérer ou simuler les aspects du projet C-Wire pour les stations de type HV-B avec les compagnies.
 
 ## Documentation
 
