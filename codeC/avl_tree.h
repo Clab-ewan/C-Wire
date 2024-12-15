@@ -4,10 +4,10 @@
 #include <stdlib.h>
 
 
-// Chaque   nœud   de   l’AVL   représente   une   station   et   va   donc   contenir
-// l’identifiant de la station ainsi que ses différentes données comme sa
-// capacité, ou bien la somme de ses consommateurs qui sera mise à jour
-// au fur et à mesure de la lecture des données par votre programme
+// Each node of the AVL represents a station and will therefore contain
+// the station's identifier as well as its various data such as its
+// capacity, or the sum of its consumers which will be updated
+// as the data is read by your program
 
 typedef struct AVLNode {
     int station_id;

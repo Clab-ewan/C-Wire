@@ -1,6 +1,6 @@
 #!/bin/bash
 
-###########################################################################################                                                                                         #
+###########################################################################################
 #             ______      ____      ____  _____  _______     ________                     #
 #           .' ___  |    |_  _|    |_  _||_   _||_   __ \   |_   __  |                    #
 #          / .'   \_|______\ \  /\  / /    | |    | |__) |    | |_ \_|                    #
@@ -10,69 +10,68 @@
 #                                                                                         #
 ###########################################################################################
 #                                                                                         #
-# Ce script permet de filtrer les données d'un fichier CSV en fonction du type de station #
-# spécifié par l'utilisateur, d'exécuter le programme C avec les données filtrées et de   #
-# sauvegarder les résultats dans un fichier temporaire.                                   #
+# This script filters data from a CSV file based on the station type specified by the     #
+# user, executes the C program with the filtered data, and saves the results in a         #
+# temporary file.                                                                         #
 #                                                                                         #
-# Usage: ./c-wire.sh <fichier_csv> <type_station> <type_consommateur> [id_centrale]       #
+# Usage: ./c-wire.sh <csv_file> <station_type> <consumer_type> [central_id]               #
 #                                                                                         #
 # Arguments:                                                                              #
-#   - fichier_csv: fichier CSV contenant les données à traiter                            #
-#   - type_station: type de station à filtrer (hvb, hva, lv)                              #
-#   - type_consommateur: type de consommateur à traiter (comp, indiv)                     #
-#   - id_centrale: identifiant de la centrale à traiter (optionnel)                       #
+#   - csv_file: CSV file containing the data to be processed                              #
+#   - station_type: type of station to filter (hvb, hva, lv)                              #
+#   - consumer_type: type of consumer to process (comp, indiv, all)                       #
+#   - central_id: identifier of the central to process (optional)                         #
 #                                                                                         #
-# Exemple: ./c-wire.sh input/c-wire_v00.csv hva comp                                      #
+# Example: ./c-wire.sh input/c-wire_v00.csv hva comp                                      #
 #                                                                                         #
-# cela représente le traitement des données du fichier data.csv pour les stations HV-B    #
-# consommant de l'électricité et connectées à la centrale 1.                              #    
+# This represents the processing of data from the file data.csv for HV-B stations         #
+# consuming electricity and connected to central 1.                                       #    
 #                                                                                         #
 ###########################################################################################
 
 #--------------------------------------------------------------------------------------------------------------#
 
-# Affichage de l'aide
 for arg in "$@"; do
     if [ "$arg" == "-h" ]; then
-        echo "Usage: $0 <fichier_csv> <type_station> <type_consommateur> [id_centrale]"
-        echo "Description: Ce script permet de traiter des données de consommation énergétique."
-        echo "Paramètres:"
-        echo "  <fichier_csv>         : Chemin vers le fichier CSV contenant les données."
-        echo "  <type_station>        : Type de station ('hva', 'hvb', 'lv')."
-        echo "  <type_consommateur>   : Type de consommateur ('comp', 'indiv', 'all')."
-        echo "  [id_centrale]         : (Optionnel) Identifiant de la centrale (doit être un nombre)."
+        echo "Usage: $0 <csv_file> <station_type> <consumer_type> [central_id]"
+        echo "Description: This script processes energy consumption data."
+        echo "Parameters:"
+        echo "  <csv_file>         : Path to the CSV file containing the data."
+        echo "  <station_type>     : Type of station ('hva', 'hvb', 'lv')."
+        echo "  <consumer_type>    : Type of consumer ('comp', 'indiv', 'all')."
+        echo "  [central_id]       : (Optional) Central identifier (must be a number)."
         echo "Options:"
-        echo "  -h                    : Affiche cette aide et quitte."
+        echo "  -h                 : Displays this help and exits."
         exit 0
     fi
 done
 
 #--------------------------------------------------------------------------------------------------------------#
 
-# Vérification de l'existance des logiciels pour la partie graphique (Gnuplot).
+# Check for the existence of software for the graphical part (Gnuplot).
 check_gnuplot(){
     if command -v gnuplot &> /dev/null 
     then
-        echo "Gnuplot est installé sur votre système."
+        echo "Gnuplot is installed on your system."
     else
-        echo "Gnuplot n'est pas installé sur votre système."
+        echo "Gnuplot is not installed on your system."
         # Installation.
-        echo "Voulez-vous installer Gnuplot ? (y/n)"
-        read -r reponse
-        if [ "$reponse" == "y" ]; then
-            echo "Installation de Gnuplot..."
+        echo "Do you want to install Gnuplot? (y/n)"
+        read -r response
+        if [ "$response" == "y" ]; then
+            echo "Installing Gnuplot..."
             sudo apt-get update
             sudo apt-get install gnuplot
         fi
-        if [ "$reponse" == "n" ]; then
-            echo "Gnuplot n'est pas installé. nous ne pouvons pas continuer."
+        if [ "$response" == "n" ]; then
+            echo "Gnuplot is not installed. We cannot continue."
             exit 1
         fi
-        # Vérification de l'installation.
+        # Check the installation.
         if [ $? -eq 0 ]; then
-            echo "Gnuplot a été installé avec succès."
+            echo "Gnuplot was successfully installed."
         else
-            echo "Erreur lors de l'installation de Gnuplot."
+            echo "Error during the installation of Gnuplot."
             exit 1
         fi
     fi
@@ -80,34 +79,34 @@ check_gnuplot(){
 
 #--------------------------------------------------------------------------------------------------------------#
 
-# Vérification des arguments passés
+# Check passed arguments
 check_arguments() {
-    if [ $# -lt 3 ]; then # Si le nombre d'arguments est inférieur à 3
-        echo "Usage: $0 <fichier_csv> <type_station> <type_consommateur> [id_centrale]"
+    if [ $# -lt 3 ]; then # If the number of arguments is less than 3
+        echo "Usage: $0 <csv_file> <station_type> <consumer_type> [central_id]"
         echo "Time : 0.0sec"
         exit 1
     fi
     if [ "$2" != "hva" ] && [ "$2" != "hvb" ] && [ "$2" != "lv" ]; then
-        echo "Erreur : Le type de station doit être 'hva' ou 'hvb' ou 'lv' ."
+        echo "Error: The station type must be 'hva', 'hvb', or 'lv'."
         echo "Time : 0.0sec"
         exit 1
     fi
     if [ "$3" != "comp" ] && [ "$3" != "indiv" ] && [ "$3" != "all" ]; then
-        echo "Erreur : Le type de consommateur doit être 'comp' ou 'indiv' ou 'all'."
+        echo "Error: The consumer type must be 'comp', 'indiv', or 'all'."
         echo "Time : 0.0sec"
         exit 1
     fi
     if { [ "$2" == "hvb" ] || [ "$2" == "hva" ]; } && { [ "$3" == "all" ] || [ "$3" == "indiv" ]; }; then
-        echo "Erreur : Les options suivantes sont interdites : hvb all, hvb indiv, hva all, hva indiv."
+        echo "Error: The following options are not allowed: hvb all, hvb indiv, hva all, hva indiv."
         echo "Time : 0.0sec"
         exit 1
     fi
     if ! [[ "$4" =~ ^[1-5]+$ ]] && [ -n "$4" ]; then
-        echo "Erreur : L'identifiant de la centrale doit être un nombre."
+        echo "Error: The central identifier must be a number."
         echo "Time : 0.0sec"
         exit 1
     fi
-    echo "Arguments valides."
+    echo "Valid arguments."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
@@ -117,20 +116,20 @@ STATION_TYPE=$2
 CONSUMER_TYPE=$3
 CENTRAL_ID=${4:-"[^-]+"}
 
-# Vérification si le fichier CSV existe et n'est pas vide
+# Check if the CSV file exists and is not empty
 check_file() {
     if [ ! -f "$INPUT_FILE" ]; then
-        echo "Erreur : Le fichier '$INPUT_FILE' n'existe pas."
+        echo "Error: The file '$INPUT_FILE' does not exist."
         exit 1
     elif [ ! -s "$INPUT_FILE" ]; then
-        echo "Erreur : Le fichier '$INPUT_FILE' est vide."
+        echo "Error: The file '$INPUT_FILE' is empty."
         exit 1
     fi
 }
 
 #--------------------------------------------------------------------------------------------------------------#
 
-# Création des dossiers nécessaires pour le script et suppresion
+# Create necessary directories for the script and remove old ones
 check_directories() {
     rm -rf "./tmp/"
     for directory in "tmp" "tests" "graphs" "codeC/progO"; do
@@ -138,25 +137,23 @@ check_directories() {
             mkdir "$directory"
         fi
     done
-    echo "Dossiers tmp, tests, graphs, codeC/progO créés."
+    echo "Directories tmp, tests, graphs, codeC/progO created."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
 
-# Vérification de l'exécutable du programme C et compilation si nécessaire
+# Verification of the C program executable and compilation if necessary
 executable_verification() {
     if [ ! -f ./CodeC/progO/exec ]; then
-        echo "Compilation en cours..."
-        make -C codeC > /dev/null 2>&1 || { echo "Erreur de compilation"; exit 1; }
+        echo "Compiling..."
+        make -C codeC > /dev/null 2>&1 || { echo "Compilation error"; exit 1; }
     fi
-    echo "Programme C compilé sans erreurs."
+    echo "C program compiled without errors."
 }
-
-# PowerPlant;hvb;hva;LV;Company;Individual;Capacity;Load
-# [ "$a" = "$b" ] compare character strings
 
 #--------------------------------------------------------------------------------------------------------------#
 
+# Data exploration and filtering
 data_exploration() {
 start_time=$(date +%s)
 case "$STATION_TYPE" in
@@ -178,24 +175,25 @@ case "$STATION_TYPE" in
             grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_all_input.csv"
 
             ;;
-            *) echo "Erreur d'argument lv"
+            *) echo "Error argument"
                 exit 1
             ;;
         esac
     ;;
-    *) echo "Erreur d'argument"
+    *) echo "Error argument"
         exit 1
     ;;
 esac
 end_time=$(date +%s.%N)
 execution_time=$(echo "$end_time - $start_time" | bc)
-echo "Exploitation des données terminée et tri des données avec succès fait en $execution_time sec."
+echo "Data exploration and sorting completed successfully in $execution_time sec."
 }
 
 
 
 #--------------------------------------------------------------------------------------------------------------#
 
+# Execution of the C program
 execute_program(){
     start_time=$(date +%s)
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
@@ -206,11 +204,12 @@ execute_program(){
     end_time=$(date +%s.%N)
     execution_time=$(echo "$end_time - $start_time" | bc)
 
-    echo "Programme C exécuté avec succès. en $execution_time sec."
+    echo "C program executed successfully in $execution_time sec."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
 
+# function to create the top 10 and bottom 10 consumers of the LV station
 create_lvallminmax() {
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
         tail -n +2 "./tmp/lv_all.csv" | awk -F: '{print $0 ":" ($2 - $3)}' | sort -t ":" -k4n | (head -n 10; tail -n 10) >> "./tmp/lv_all_minmax.csv"
@@ -219,8 +218,9 @@ create_lvallminmax() {
     fi 
 }
 
-# ajouter le temps de traitement
+#--------------------------------------------------------------------------------------------------------------#
 
+# function to create the graphs of the top 10 and bottom 10 consumers of the LV station
 create_lv_all_graphs() {
     start_time=$(date +%s)
 
@@ -236,9 +236,9 @@ create_lv_all_graphs() {
         set xlabel textcolor rgb "black"
         set ylabel textcolor rgb "black"
 
-        set title "Top 10 et Bas 10 des consommateurs LV" font "Arial, 16"
-        set xlabel "Poste LV" font "Arial, 12"
-        set ylabel "Consommation (kW)" font "Arial, 12"
+        set title "Top 10 and Bottom 10 LV Consumers" font "Arial, 16"
+        set xlabel "LV Station" font "Arial, 12"
+        set ylabel "Consumption (kW)" font "Arial, 12"
         set key top right
 
         set datafile separator ":"
@@ -250,19 +250,18 @@ create_lv_all_graphs() {
         set grid ytics lw 1
         set border 3
 
-        plot './tmp/lv_all_minmax.csv' using 2:xtic(1) title 'Dans la Limite' lc rgb "green", \
-            '' using (abs(\$2-\$3)):xtic(1) title 'Dépassement' lc rgb "red"
+        plot './tmp/lv_all_minmax.csv' using 2:xtic(1) title 'Within Limit' lc rgb "green", \
+            '' using (abs(\$2-\$3)):xtic(1) title 'Exceeding' lc rgb "red"
 EOF
 
     end_time=$(date +%s.%N)
     execution_time=$(echo "$end_time - $start_time" | bc)
-    echo "Graphiques créés avec succès en $execution_time sec."
+    echo "Graphs created successfully in $execution_time sec."
 }
-
 
 #--------------------------------------------------------------------------------------------------------------#
 
-# Appel des fonctions
+# Function calls
 check_arguments "$@"
 check_gnuplot
 check_file
