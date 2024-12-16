@@ -150,7 +150,7 @@ check_file() {
 
 # Create necessary directories for the script and remove old ones
 check_directories() {
-    rm -rf "./tmp/"
+    rm -rf "./tmp/" 
     for directory in "tmp" "tests" "graphs" "codeC/progO"; do
         if [ ! -d "$directory" ]; then
             mkdir "$directory"
@@ -174,25 +174,17 @@ executable_verification() {
 
 # Data exploration and filtering
 data_exploration() {
-start_time=$(date +%s)
 case "$STATION_TYPE" in
-    'hvb')  grep -E "^$CENTRAL_ID;[^-]+;-;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | sed 's/-/0/g' > "./tmp/hvb_comp_input.csv" &&
-            grep -E "^$CENTRAL_ID;[^-]+;-;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | sed 's/-/0/g' >> "./tmp/hvb_comp_input.csv"
+    'hvb')  grep -E "^$CENTRAL_ID;[^-]+;-;-;[^;]+;-;[^;]+;[^;]+$" "$INPUT_FILE" | cut -d ";" -f2,7,8 | tr "-" "0" | ./codeC/progO/exec | file_modifier
     ;;
-    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f3,7,8 | sed 's/-/0/g' > "./tmp/hva_comp_input.csv" &&
-            grep -E "^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f3,7,8 | sed 's/-/0/g' >> "./tmp/hva_comp_input.csv"
+    'hva') grep -E "^$CENTRAL_ID;[^-]+;[^-]+;-;-;-;[^;]+;-$|^$CENTRAL_ID;-;[^-]+;-;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f3,7,8 | tr "-" "0" | ./codeC/progO/exec | file_modifier
     ;;
     'lv') case "$CONSUMER_TYPE" in 
-            'comp') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' > "./tmp/lv_comp_input.csv" &&
-                    grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_comp_input.csv"
+            'comp') grep -E "^$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$|^$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | tr "-" "0" | ./codeC/progO/exec | file_modifier
             ;;
-            'indiv') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' > "./tmp/lv_indiv_input.csv" &&
-                    grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_indiv_input.csv"
+            'indiv') grep -E "^$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$|^$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | tr "-" "0" | ./codeC/progO/exec | file_modifier
             ;;
-            'all') grep -E "$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' > "./tmp/lv_all_input.csv" &&
-            grep -E "$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_all_input.csv" &&
-            grep -E "$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | sed 's/-/0/g' >> "./tmp/lv_all_input.csv"
-
+            'all') grep -E "^$CENTRAL_ID;-;[^-]+;[^-]+;-;-;[^-]+;-$|^$CENTRAL_ID;-;-;[^-]+;[^-]+;-;-;[^-]+$|^$CENTRAL_ID;-;-;[^-]+;-;[^-]+;-;[^-]+$" "$INPUT_FILE" | cut -d ";" -f4,7,8 | tr "-" "0" | ./codeC/progO/exec | file_modifier
             ;;
             *) echo "Error argument"
                 exit 1
@@ -203,27 +195,17 @@ case "$STATION_TYPE" in
         exit 1
     ;;
 esac
-end_time=$(date +%s.%N)
-execution_time=$(echo "$end_time - $start_time" | bc)
-echo "Data exploration and sorting completed successfully in $execution_time sec."
 }
-
-
 
 #--------------------------------------------------------------------------------------------------------------#
 
 # Execution of the C program
-execute_program(){
-    start_time=$(date +%s)
+file_modifier(){
     if [ ${CENTRAL_ID} = "[^-]+" ]; then
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2n | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
+    sort -t ":" -k2n | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}.csv
     else
-    (./codeC/progO/exec < ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_input.csv) | sort -t ":" -k2n | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
+    sort -t ":" -k2n | sed "1s/^/Station ${STATION_TYPE}:Capacity:Load\n/" > ./tmp/${STATION_TYPE}_${CONSUMER_TYPE}_${CENTRAL_ID}.csv
     fi
-    end_time=$(date +%s.%N)
-    execution_time=$(echo "$end_time - $start_time" | bc)
-
-    echo "C program executed successfully in $execution_time sec."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
@@ -286,8 +268,11 @@ check_gnuplot
 check_file
 check_directories
 executable_verification
+start_time=$(date +%s)
 data_exploration
-execute_program
+end_time=$(date +%s.%N)
+execution_time=$(echo "$end_time - $start_time" | bc)
+echo "Program executed successfully in $execution_time sec."
 if [[ ${STATION_TYPE} = 'lv' && ${CONSUMER_TYPE} = 'all' ]]; then
 create_lvallminmax
 create_lv_all_graphs

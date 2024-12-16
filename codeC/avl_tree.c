@@ -116,6 +116,7 @@ AVLNode *insertAVL(AVLNode *node, int station_id, long capacity, long load, int 
 	}
 	else{// if the node already exists in the tree, update its data but no insertion
 		node->load += load;
+		node->capacity += capacity;
 		*h = 0;
 		return node;
 	}
