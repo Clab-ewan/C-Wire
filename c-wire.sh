@@ -223,7 +223,6 @@ create_lvallminmax() {
 
 # function to create the graphs of the top 10 and bottom 10 consumers of the LV station
 create_lv_all_graphs() {
-    start_time=$(date +%s)
 
     gnuplot <<EOF
         set terminal pngcairo size 800,600
@@ -260,9 +259,6 @@ create_lv_all_graphs() {
             
 EOF
 
-    end_time=$(date +%s.%N)
-    execution_time=$(echo "$end_time - $start_time" | bc)
-    echo "Graphs created successfully in $execution_time sec."
 }
 
 #--------------------------------------------------------------------------------------------------------------#
@@ -275,10 +271,10 @@ check_directories
 executable_verification
 start_time=$(date +%s)
 data_exploration
-end_time=$(date +%s.%N)
-execution_time=$(echo "$end_time - $start_time" | bc)
-echo "Program executed successfully in $execution_time sec."
 if [[ ${STATION_TYPE} = 'lv' && ${CONSUMER_TYPE} = 'all' ]]; then
 create_lvallminmax
 create_lv_all_graphs
 fi
+end_time=$(date +%s.%N)
+execution_time=$(echo "$end_time - $start_time" | bc)
+echo "Program executed successfully in $execution_time sec."
