@@ -235,24 +235,29 @@ create_lv_all_graphs() {
         set key textcolor rgb "black"
         set title textcolor rgb "black"
         set xlabel textcolor rgb "black"
+        set xtics rotate by -45
         set ylabel textcolor rgb "black"
 
         set title "Top 10 and Bottom 10 LV Consumers" font "Arial, 16"
         set xlabel "LV Station" font "Arial, 12"
         set ylabel "Consumption (kW)" font "Arial, 12"
-        set key top right
+        set key left top
 
         set datafile separator ":"
 
         set style data histogram
-        set style histogram cluster rowstacked
-        set style fill solid 1.0 noborder
+        set style histogram rowstacked 
+        set style fill solid 1.0 border -1
         set boxwidth 0.8 relative
         set grid ytics lw 1
         set border 3
 
-        plot './tmp/lv_all_minmax.csv' using 2:xtic(1) title 'Within Limit' lc rgb "green", \
-            '' using (abs(\$2-\$3)):xtic(1) title 'Exceeding' lc rgb "red"
+
+    plot    './tmp/lv_all_minmax.csv' using (column(4) < column(1) ? abs(column(2)-column(3)) : column(3)):xtic(1) title 'Load' lc rgb "green", \
+            '< tail -n +11 ./tmp/lv_all_minmax.csv' using 3-2:xtic(1) title 'Surplus' lc rgb "red", \
+            './tmp/lv_all_minmax.csv' using (column(4) < column(1) ? 0 : column(2)-column(3)):xtic(1) title 'Capacity' lc rgb "blue"
+            
+            
 EOF
 
     end_time=$(date +%s.%N)
