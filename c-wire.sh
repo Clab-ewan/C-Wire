@@ -76,14 +76,14 @@ check_gnuplot(){
         echo "Gnuplot is not installed on your system."
         # Installation.
         echo "Do you want to install Gnuplot? (y/n)"
-        read -r response
-        if [ "$response" == "y" ]; then
+        read -r answer
+        if [ "$answer" == "y" ]; then
             echo "Installing Gnuplot..."
             sudo apt-get update
             sudo apt-get install gnuplot
         fi
-        if [ "$response" == "n" ]; then
-            echo "Gnuplot is not installed. We cannot continue."
+        if [ "$answer" == "n" ]; then
+            echo "Gnuplot is mandatory for this program."
             exit 1
         fi
         # Check the installation.
