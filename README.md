@@ -14,6 +14,7 @@ Le répertoire contient les fichiers suivants :
 - **rapport.pdf** : Rapport détaillant les résultats et l'analyse du projet.
 - **c-wire.sh** : Script shell pour l'exécution des commandes principales du projet.
 - **codeC/** : Répertoire contenant le code C source du projet.
+- **test/** : Répertoire contenant les fichiers generer a l'aide du fichier c-wire_v25.csv
 - **input/** : Répertoire contenant des fichiers d'entrée nécessaires pour l'exécution du projet.
 - **graphs/** : Répertoire contenant le graphique dans le cas de lv all
 
@@ -77,7 +78,7 @@ La documentation du projet est disponible sous forme de fichiers PDF :
 
 ## Auteurs
 
-- **HAMELIN Simon** - *Développeur principal* - [Simonhamel1](https://github.com/Simonhamel1)
-- **CLABAUT Ewan** - *Développeur shell* - [Clab-ewan](https://github.com/Clab-ewan)
-- **MARMELAT Paul** - *Développeur C* - [paulmarmelat](https://github.com/paulmarmelat)
+- **HAMELIN Simon**  - [Simonhamel1](https://github.com/Simonhamel1)
+- **CLABAUT Ewan** - [Clab-ewan](https://github.com/Clab-ewan)
+- **MARMELAT Paul** - [paulmarmelat](https://github.com/paulmarmelat)
 
