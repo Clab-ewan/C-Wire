@@ -7,15 +7,15 @@ Pour ce faire, un fichier .csv est requis, contenant un ensemble de données dé
 ## Contenu du projet
 
 Le répertoire contient les fichiers suivants :
-- **README.md** : Le fichier que vous êtes en train de lire.
-- **.gitignore** : Fichier pour ignorer certains fichiers lors de l'utilisation de Git.
-- **Projet_C-Wire_Consigne.pdf** : Documentation sur les consignes et les spécificités du projet.
-- **rapport.pdf** : Rapport détaillant les résultats et l'analyse du projet.
-- **c-wire.sh** : Script shell pour le tri et l'analyse du fichier de données.
-- **codeC/** : Répertoire contenant le code C du projet (utilisé pour effectuées les calculs nécessaires au projet).
-- **test/** : Répertoire contenant les fichiers génerées a l'aide du fichier c-wire_v25.csv
-- **input/** : Répertoire contenant des fichiers d'entrées nécessaires pour l'exécution du projet.
-- **graphs/** : Répertoire contenant le graphique dans le cas de la demande "lv all"
+- **README.md** : le fichier que vous êtes en train de lire.
+- **.gitignore** : fichier pour ignorer certains fichiers lors de l'utilisation de Git.
+- **Projet_C-Wire_Consigne.pdf** : documentation sur les consignes et les spécificités du projet.
+- **rapport.pdf** : rapport détaillant les résultats et l'analyse du projet.
+- **c-wire.sh** : script shell pour le tri et l'analyse du fichier de données.
+- **codeC/** : répertoire contenant le code C du projet (utilisé pour effectuer les calculs nécessaires au projet).
+- **test/** : répertoire contenant les fichiers générés a l'aide du fichier c-wire_v25.csv
+- **input/** : répertoire contenant des fichiers d'entrées nécessaires pour l'exécution du projet.
+- **graphs/** : répertoire contenant le graphique dans le cas de la demande "lv all"
 
  ## Installation
 
@@ -31,7 +31,7 @@ Pour installer et exécuter ce projet, suivez ces étapes :
    cd ./chemin/vers/C-Wire
    ```
 
-3. Allez dans le répertoire input du projet et déposer votre fichier données requis 
+3. Allez dans le répertoire input du projet et déposer votre fichier de données à traiter. 
 
 ## Utilisation
 
@@ -50,17 +50,18 @@ Exécutez le script de la manière suivante :
 
 Le script `c-wire.sh` accepte les arguments suivants :
 
-- `<csv_file>` : Chemin vers le fichier CSV contenant les données de distribution d'électricité à traiter.
-- `<station_type>` : Type de station (ex. `hvb` pour haute tension B, `hva` pour haute tension A, `lv` pour basse tension). L’énergie est d’abord envoyée à très haute tension (~400 kV) vers les sous-stations HV-B, qui la réduisent à plus de 50 kV pour une grande zone. Elle est ensuite transférée aux sous-stations HV-A pour une réduction à plus de 1000 V pour une zone régionale. Enfin, les postes LV distribuent l’énergie aux particuliers et petites entreprises (230 V).
+- `<csv_file>` : chemin vers le fichier CSV contenant les données de distribution d'électricité à traiter.
+- `<station_type>` : type de station (ex. `hvb` pour haute tension B, `hva` pour haute tension A, `lv` pour basse tension). L’énergie est d’abord envoyée à très haute tension (~400 kV) vers les sous-stations HV-B, qui la réduisent à plus de 50 kV pour une grande zone. Elle est ensuite transférée aux sous-stations HV-A pour une réduction à plus de 1000 V pour une zone régionale. Enfin, les postes LV distribuent l’énergie aux particuliers et petites entreprises (230 V).
 
-- `<consumer_type>` : Type de consommateur (par exemple, `comp` pour compagnie, `ind` pour individuel, `all` pour tout type). Les staions HVB et HVA ne peuvent accueillir que l'option comp puisqu'elles ne sont pas raccordées aux particuliers
+- `<consumer_type>` : type de consommateur (par exemple, `comp` pour compagnie, `ind` pour individuel, `all` pour tout type). Les stations HVB et HVA ne peuvent accueillir que l'option comp puisqu'elles ne sont pas raccordées aux particuliers.
 
-- `[central_id]` : (Optionnel) Identifiant de la centrale électrique spécifique à analyser.
+- `[central_id]` : (optionnel) identifiant de la centrale électrique spécifique à analyser.
 
-- `-h` : permettant d'activer l'option d'aide en cas d'oublie de cette consigne
+- `-h` : permet d'activer l'option d'aide en cas d'oublie de cette consigne.
 
 ### Résultats du script
-// a faire //
+
+A la fin de l'exécution, le script produit dans le dossier 'tmp' un fichier nommé '$TYPE_STATION'_'$CONSOMMATEUR'.csv qui contiendra les données de capacité et de charge de chaque station étudiée, les stations sont triées dans l'ordre croissant en fonction de leur capacité.
 
 ### Exemple d'exécution
 
@@ -74,8 +75,8 @@ Cela exécutera les processus définis dans le script pour gérer ou simuler les
 ## Documentation
 
 La documentation du projet est disponible sous forme de fichiers PDF :
-- **Projet_C-Wire_Consigne.pdf** : Contient les spécifications détaillées du projet et des consignes à suivre.
-- **rapport.pdf** : Contient un rapport détaillé des résultats du projet, les analyses, et les conclusions.
+- **Projet_C-Wire_Consigne.pdf** : contient les spécifications détaillées du projet et des consignes à suivre.
+- **rapport.pdf** : contient un rapport détaillé des résultats du projet, les analyses, et les conclusions.
 
 
 ## Auteurs
