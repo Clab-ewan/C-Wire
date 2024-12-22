@@ -4,7 +4,7 @@
 Ce projet consiste à développer un programme pour synthétiser les données d'un système de distribution d'électricité. L'objectif est de permettre d’analyser les stations (centrales, stations HV-A, stations HV-B, postes LV) afin de déterminer si elles sont en situation de surproduction ou de sous-production d’énergie, ainsi que d’évaluer quelle proportion de leur énergie est consommée par les entreprises et les particuliers.
 Pour ce faire, un fichier .csv est requis, contenant un ensemble de données détaillant la distribution d'électricité en France, depuis les centrales électriques, en passant par les sous-stations de distributions, jusqu'aux entreprises et aux particuliers, qui sont les clients finaux.
 
-   ## Contenu du projet
+## Contenu du projet
 
 Le répertoire contient les fichiers suivants :
 - **README.md** : Le fichier que vous êtes en train de lire.
@@ -17,7 +17,7 @@ Le répertoire contient les fichiers suivants :
 - **input/** : Répertoire contenant des fichiers d'entrées nécessaires pour l'exécution du projet.
 - **graphs/** : Répertoire contenant le graphique dans le cas de la demande "lv all"
 
-   ## Installation
+ ## Installation
 
 Pour installer et exécuter ce projet, suivez ces étapes :
 
@@ -33,7 +33,7 @@ Pour installer et exécuter ce projet, suivez ces étapes :
 
 3. Allez dans le répertoire input du projet et déposer votre fichier données requis 
 
-   ## Utilisation
+## Utilisation
 
 ### Lancer le projet
 
@@ -59,7 +59,7 @@ Le script `c-wire.sh` accepte les arguments suivants :
 
 - `-h` : permettant d'activer l'option d'aide en cas d'oublie de cette consigne
 
-### Résultat du script
+### Résultats du script
 // a faire //
 
 ### Exemple d'exécution
